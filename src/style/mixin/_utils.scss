@@ -1,0 +1,23 @@
+// 三角形样的【可能是梯形
+@mixin triangle-like($width,$height){
+    border: $width solid transparent;
+    border-top-width: $height/2;
+    border-bottom-width: $height/2;
+    border-left-color: var(--my-web-color);
+}
+// 限制元素内文字显示多少行
+@mixin text-lines($line-count){
+    display: box;
+    display: -webkit-box;
+    display: -moz-box;
+
+    -moz-box-orient: vertical;
+    -webkit-box-orient: vertical;
+
+    line-clamp: $line-count;
+    -webkit-line-clamp: $line-count;
+    
+    text-overflow:ellipsis;
+    overflow: hidden;
+
+}

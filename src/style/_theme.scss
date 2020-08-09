@@ -1,0 +1,19 @@
+
+:root{
+    --my-web-bg:#{$bg};
+    --my-web-color:#{$color};
+    --my-web-font-size:#{$font-size};
+}
+*,html{
+    background:$bg;
+    color: $color;
+    font-size: $font-size;
+}
+div{
+    background-color: $bg;
+}
+div,p,span,a{
+    font-weight: $font-weight;
+}
+
+
