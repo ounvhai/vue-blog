@@ -24,6 +24,9 @@ const ARTICEL_PATH:string="Articel/";
 //获得文章信息
 export const GET_ARTICEL_INFO:string=ARTICEL_PATH+'GetArticelInfo';
 
+const OPINION_PATH="Opinion/";
+
+export const TOGGLE:string=OPINION_PATH+"Toggle";
 
 
 

@@ -74,19 +74,22 @@
 <script lang='ts'>
 interface ChapterItem{
     title:string,
-    aheadTo:{name:string,params?:any},
+    aheadTo:{name?:string,params?:any,path?:string},
 }
 //默认选中的chapter的index。
 const DEFAULT_SELECTED_INDEX:number=0;
 import {Vue ,Component } from 'vue-property-decorator';
 import { RawLocation } from 'vue-router';
-
+import {INTRODUCTION_ARTICRL_ID, INTRODUCTION_CONTENT_ID} from '../../router'
 @Component
 export default class Chapter extends Vue{
     chapterItems:ChapterItem[]=[
         {
             title:'个人介绍',
-            aheadTo:{name:'intro'},
+            aheadTo:{name:'articel',query:{
+                articelID:INTRODUCTION_ARTICRL_ID,
+                contentID:INTRODUCTION_CONTENT_ID,
+            }},
         },
         {
             title:'主页',

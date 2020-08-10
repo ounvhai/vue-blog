@@ -3,23 +3,30 @@ import Router from 'vue-router';
 
 Vue.use(Router);
 // 自我介绍的文章ID
-const INTRODUCTION_ARTICRL_ID=1;
+export const INTRODUCTION_ARTICRL_ID=1;
 //自我介绍的content ID
-const INTRODUCTION_CONTENT_ID=2;
+export const INTRODUCTION_CONTENT_ID=2;
 //评论板块的contentID
-const CONTENT_ID_OF_COMMENT=1;
+export const CONTENT_ID_OF_COMMENT=1;
 
 
 export default new Router({
   routes: [
     {
-      /* 自我介绍路由 */
+      /* articel路由 */
       path:'/',
-      name:'intro',
-      props:{
+      redirect:{name:'articel',query:{
         articelID:INTRODUCTION_ARTICRL_ID,
         contentID:INTRODUCTION_CONTENT_ID,
-      },
+      }},
+    },
+    {
+      path:'/',
+      name:'articel',
+      props:(route)=>({
+        articelID:route.query.articelID,
+        contentID:route.query.contentID,
+      }),
       component:()=>import('@com/Articel/Articel.vue'),
     },
     {

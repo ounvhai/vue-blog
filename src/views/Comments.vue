@@ -63,7 +63,7 @@
 
 
 
-import {Vue ,Component ,Prop} from 'vue-property-decorator';
+import {Vue ,Component ,Prop, Watch, Emit} from 'vue-property-decorator';
 import {mixins} from 'vue-class-component'
 // 组件
 import Comment from '@com/Comment.vue';
@@ -126,9 +126,22 @@ export default class Comments extends mixins(UserTrace){
     isLoading:boolean=false;
     // 请求中的promise
     request:Promise<any>|null=null;
+
+    //评论上传成功后被调用
+    @Emit('on-comment-uploaded')
+    handleCommentUploaded(){}
+    //contentID发生变时更新评论列表
+    @Watch('contentID')
+    handleContentIDChange():void{
+        this.requestGetComments()
+            .then(({data:{Data}})=>{
+                this.comments=Data;
+            })
+    }
     created(){
         this.user=latestUser();
         // 此处请求评论列表跟 onUserInited 中请求评论并不冲突
+        //有userID就是已经UserIntited执行过了。
         if(this.user.ID){
             this.requestGetComments()
                 .then(({data:{Data}})=>{
@@ -193,6 +206,7 @@ export default class Comments extends mixins(UserTrace){
                 this.comments.push(newComment);
                 // 清空输入状态
                 this.resetInputingComment();
+                this.handleCommentUploaded();
             })
         await this.request;
         this.isLoading=false;

@@ -1,3 +1,5 @@
+import { OpinionState } from "@/utils/varia";
+
 export interface ArticelVM{
     ContentID:number,
     ArticelID:number,
@@ -8,6 +10,7 @@ export interface ArticelVM{
     CommentCount:number,
     TagID:number,
     TagName:string,
+    UserOpinion:OpinionState
 }
  
 export interface NaviInfo{
