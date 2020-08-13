@@ -18,6 +18,7 @@
 </style>
 <template>
     <div class="comments ">
+        <slot name="front"></slot>
         <!-- 提交评论的部分 -->
         <div class="comments-submit d-flex">
             <avatar class="comments-write-avatar mr-3" name='' :portrait='observerPortrait'></avatar>
@@ -25,6 +26,7 @@
                 <textarea v-model="inputing.txt" :placeholder="placeholder" rows="5" class="form-control"></textarea>
             </div>
         </div>
+        <slot name="behind-submit"></slot>
         <div class="d-flex justify-content-end">
             <!-- 请求状态 -->
             <Request-Watcher class="text-center" :request='request'>
@@ -138,7 +140,7 @@ export default class Comments extends mixins(UserTrace){
                 this.comments=Data;
             })
     }
-    created(){
+    created(){ 
         this.user=latestUser();
         // 此处请求评论列表跟 onUserInited 中请求评论并不冲突
         //有userID就是已经UserIntited执行过了。
@@ -146,6 +148,7 @@ export default class Comments extends mixins(UserTrace){
             this.requestGetComments()
                 .then(({data:{Data}})=>{
                     this.comments=Data;
+                    console.log('评论：',this.comments);
                 });
         }
     }

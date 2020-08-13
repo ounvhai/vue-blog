@@ -1,32 +1,25 @@
 <script lang='ts'>
 import {Vue ,Component ,Emit ,Prop} from 'vue-property-decorator';
 
-
-// 组件
-// import Avatar from './Avatar.vue';
-// import Comment from './Comment.vue';
-// import Comments from '@views/Comments.vue';
-import Articel from '@com/Articel/Articel.vue';
-import { CommentViewModel, User } from '../types';
+import UserInfo from './UserInfo.vue';
 
 @Component({
     components:{ 
-        atc:Articel,
+        UserInfo,  
     }
 })
 export default class Test extends Vue{
-    @Prop({type:Number,required:true})  articelID!:number;
-    @Prop() contentID!:number;
-
-    created(){
-        console.log('');
-    }
     
 }
 </script>
-
+<style lang="scss">
+    .bi{
+        width:30px;
+        height: 30px;;
+    }
+</style>
 <template>
-    <div class="t">
-        <atc :articelID='articelID' :contentID='contentID' ></atc>
-    </div>
+    <user-info>
+        
+    </user-info>
 </template>

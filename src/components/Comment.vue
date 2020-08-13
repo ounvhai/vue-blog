@@ -6,7 +6,7 @@ import Opinion from '@com/Opinion.vue';
 // 类型
 import {SentComment as Sent ,CommentViewModel as VM, User } from '../types/index'; 
 // 常量
-import {UNSET_VIEWER_ID, UNSER_VIEREW_NAME} from '../utils/utils.ts';
+import {UNSET_NUMBER, UNSER_VIEREW_NAME} from '../utils/utils.ts';
 @Component({
     components:{
         Avatar,
@@ -27,7 +27,7 @@ export default class Comment extends Vue {
     get isReplyOther():boolean{//用户ID,数据库表是从1开始的,不担心
         // 是不是回复他人主要看 this.comment.ResponsedViewerID,只要不是undefined,null,-1就行
         let reponserdID:number|null|undefined=this.comment.ResponsedViewerID;
-        if(reponserdID!==null&&reponserdID!==undefined&&typeof reponserdID==="number"&&reponserdID!==UNSET_VIEWER_ID)
+        if(reponserdID!==null&&reponserdID!==undefined&&typeof reponserdID==="number"&&reponserdID!==UNSET_NUMBER)
             return true;
         return false;
     }

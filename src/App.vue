@@ -11,9 +11,9 @@
                 <div @click="isSeen=true" v-show="isForShowLeftSideOpen" class="trigger position-fixed"></div>
              </transition>
             <!-- 内容 -->
-            <div class="main position-relative col-12 col-md-8 offset-md-4">
+            <div class="main position-relative col-12 col-md-9 offset-md-3">
                 <!-- 导航栏 -->
-                <navbar/>
+                <!-- <navbar/> -->
                 <router-view />
                 <jiao />
             </div>
@@ -61,8 +61,7 @@
 import {Vue ,Component ,Ref} from 'vue-property-decorator';
 
 // 组件
-import LeftSide from '@com/LeftSide/LeftSide.vue'
-import Navbar from '@com/Nav.vue';
+import LeftSide from '@com/LeftSide/LeftSide.vue' 
 import Footer from '@com/Footer.vue';
 // Utils
 import {innerHeight, isThePortable} from "../src/utils/utils";
@@ -73,27 +72,25 @@ import { AxiosInstance } from 'axios';
 import {ServerRespond} from './types/index';
 @Component({
     components:{
-        LeftSide,
-        Navbar,
+        LeftSide, 
         jiao:Footer,
     }
 })
 export default class App extends Vue{
-    test(){
-        console.log('需要填写');
-    }
-    
     isSeen:boolean=true;
 
     isLeftSideFading:boolean=false;
     
     created(){
+        // 请求用户
         (this.$axios as AxiosInstance)({
             url:FETCH_USER,
         }).then(({data})=>{
             let serverRespond:ServerRespond=data;
             this.$mergeUser(serverRespond.Data);
         })
+        //跳转去自我介绍
+        this.$axios.push({name:'articel'})
     }
 
     mounted():void{

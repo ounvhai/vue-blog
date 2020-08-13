@@ -30,6 +30,11 @@ export default new Router({
       component:()=>import('@com/Articel/Articel.vue'),
     },
     {
+      path:'/Main',
+      name:'main',
+      component:()=>import('@views/ArticelList.vue'),
+    },
+    {
       /* 测试路由 */
       path:'/t',
       name:'test',
@@ -46,32 +51,7 @@ export default new Router({
       props:{
         contentID:CONTENT_ID_OF_COMMENT,
       }
-    },
-    {
-      /* 主页路由 */
-      path:'/Main',
-      name:'main',
-      component:()=>import('@views/Main.vue'),
-    },
-    {
-      /* 标签组件 */
-      path:'',
-      name:'contents',
-      component:()=>import('@views/Tags.vue'),
-      children:[
-        {
-          /* 文章列表组件 */
-          path:'/Articels',
-          name:'articels',
-          component:()=>import("@views/ArticelList.vue"),
-        },
-        {
-          // 心情组件
-          path:'/Emotions',
-          name:'emotions',
-          component:()=>import("@views/EmotionList.vue"),
-        }
-      ]
-    }
+    }, 
+    
   ],
 });

@@ -14,6 +14,7 @@ export function innerHeight():number{
 export function innerWidth():number{
     return window.innerWidth||document.documentElement.clientWidth;
 }
+
 // 是手机吗
 export function isThePortable():boolean{
     // 768是bootstrap网格中md开始的值
@@ -38,5 +39,42 @@ export  function hasCookie(name:string):boolean{
 }
 
 // 滚到指定高度
-export function scrollToTop():void{ 
+export function scrollToTop(el:HTMLElement,toY:number):void{
+    var curScrollHeight:number=el.scrollTop;
+    scroll()
+    function scroll():void{
+        // 跳出
+        if(Math.abs(toY-curScrollHeight)<=1||toY<0) return ;
+        let curTo=(curScrollHeight-toY)/1.1;
+        el.scrollTo(0,curTo);
+        curScrollHeight=curTo;
+        window.requestAnimationFrame(()=>{
+            scroll();
+        });
+    }
+}
+//节流
+export function throttle2(fn:Function,delay:number=300):(...args:any[])=>void{
+    let timer=-1;
+    return function(...args:any[]){
+        clearTimeout(timer);
+        timer=setTimeout(function(){//执行的话一直往后推。不触发了才执行。
+            let context=this;
+            fn.apply(context,args);
+        },delay);
+    }
+}
+//节流
+export function throttle(fn:Function,delay:number=150):Function{
+    //上次执行时间
+    let lastTime:Date=new Date();
+    return function(...arg:any[]){
+        //已经超过延迟时间
+        let curTime=new Date;
+        if(+curTime>+lastTime+delay){
+            let context=this;//这样就可以通过返回函数指定fn的this
+            fn.apply(context,arg);
+            lastTime=curTime;
+        }
+    }
 }

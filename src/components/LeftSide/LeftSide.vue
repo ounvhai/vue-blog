@@ -5,7 +5,7 @@
                 <div  v-show="isSeen" @click="handleClickMask" class="mask position-fixed  d-md-none   bg-dark"></div>
             </transition>
             <transition name="content-fade" @after-enter='handleOpen' @after-leave='handleClosed'>
-                <div v-show="isSeen" class="content position-fixed col-md-4 col-8 ">
+                <div v-show="isSeen" class="content position-fixed col-md-3 col-8 ">
                     <img 
                         src="../../assets/orange.jpg" 
                         alt="网站logo" 
