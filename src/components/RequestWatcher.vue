@@ -19,10 +19,6 @@ interface Messages{
 @Component
 export default class RequestWatcher extends Vue{
     @Prop({required:true}) request!:Promise<any>|null;
-    // 请求完成触发回调
-    @Emit('on-request-done') handleRequestDone():void{}
-    // 请求错误触发回调
-    @Emit('on-request-err') handleRequestErr():void{}
     // promsie的各个状态
     state:State={
         isDone:false,
@@ -33,13 +29,14 @@ export default class RequestWatcher extends Vue{
         done:undefined,
         err:undefined,
     }
-    // 计时器的ID
-    timer:number=REQUEST_WATCHER_TIMER;
+    created(){
+        if(this.request instanceof Promise)
+            this.handleRequestChange(this.request);
+    }
     @Watch('request')
-    handleRequestChange(newValue:Promise<any>,oldValue:Promise<any>){
+    handleRequestChange(newValue:Promise<any>){
         //不是promise实例就不
         if((newValue instanceof Promise)===false) return ;
-        clearTimeout(this.timer);
         this.resetState();
         this.state.isLoading=true;
         (this.request as Promise<any>)
@@ -57,13 +54,6 @@ export default class RequestWatcher extends Vue{
                 if(data&&typeof data!=="object"){
                     this.hints.err=data as string;
                 }
-            })
-            .finally(()=>{
-                // 延迟使提示文字信息事件后自己消失
-                this.timer=window.setTimeout(()=>{
-                    //重新初始化数据
-                    this.resetState();
-                },1500);
             })
     }
     // 重新初始化
@@ -88,14 +78,14 @@ export default class RequestWatcher extends Vue{
         </label>
         <label v-else-if='state.isDone===true' class="text-success">
             <template v-if='hints.done'>
-                {{hint.done||''}}
+                {{hint.done}}
             </template>
             <slot v-else name="done">
             </slot>
         </label>
         <label v-else-if='state.isErr===true' class="text-danger">
             <template v-if='hints.err'>
-                {{hints.err||''}}
+                {{hints.err}}
             </template>
             <slot v-else name="err">
             </slot>

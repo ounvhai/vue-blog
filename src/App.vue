@@ -90,7 +90,7 @@ export default class App extends Vue{
             this.$mergeUser(serverRespond.Data);
         })
         //跳转去自我介绍
-        this.$axios.push({name:'articel'})
+        // this.$router.push({name:'articel'})
     }
 
     mounted():void{

@@ -83,7 +83,7 @@ export default class Comment extends Vue {
             .comment-avatar{
                 // 头像宽度内容自适应
                 flex:0 0 auto;
-                width: 2.5rem;
+                width: 1.3rem;
             }
             // 评论内容
             .context{

@@ -13,6 +13,7 @@ import {updateUser } from './utils/userMgr/index';
 import "@style/main.scss";
 // bootstrap
 import 'bootstrap/dist/css/bootstrap.min.css'; 
+// import 'bootstrap'
 
 
 Vue.config.productionTip = false;

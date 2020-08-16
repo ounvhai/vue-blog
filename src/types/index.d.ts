@@ -1,6 +1,8 @@
 export * from './user';
 export * from './comment';
 export * from './articel';
+export * from './tags';
+export * from './utils';
 
 export enum Result{
     //请求成功

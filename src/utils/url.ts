@@ -20,15 +20,22 @@ export const UPLOAD_COMMENT:string=COMMENTS_PATH+"UploadComment";
 // 获取评论列表
 export const GET_COMMENTS:string=COMMENTS_PATH+"GetComments";
 
+// 文章控制器
 const ARTICEL_PATH:string="Articel/";
 //获得文章信息
 export const GET_ARTICEL_INFO:string=ARTICEL_PATH+'GetArticelInfo';
-
+//获取某一页的几篇文章
 export const GET_ARTICEL_PAGE:string=ARTICEL_PATH+'GetPage';
 
+//点赞控制器
 const OPINION_PATH="Opinion/";
 
+//对点赞状态取反
 export const TOGGLE:string=OPINION_PATH+"Toggle";
+
+//tag标签控制器
+const TAG_PATH:string="Tag/";
+export const GET_ALL_TAG=TAG_PATH;
 
 
 

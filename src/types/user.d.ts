@@ -10,3 +10,10 @@ export interface User{
     //头像
     Portrait:string,
 }
+
+export interface AssistantVM{
+    ID:number,
+    Name:string,
+    Portrait:string,
+    Count:number,   
+}

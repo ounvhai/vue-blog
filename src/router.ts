@@ -13,13 +13,20 @@ export const CONTENT_ID_OF_COMMENT=1;
 export default new Router({
   routes: [
     {
-      /* articel路由 */
+      // articel路由
       path:'/',
+      name:'tmp',
       redirect:{name:'articel',query:{
         articelID:INTRODUCTION_ARTICRL_ID,
         contentID:INTRODUCTION_CONTENT_ID,
       }},
     },
+    // {
+    //   // articel路由
+    //   path:'/',
+    //   name:'tmp',
+    //   redirect:{name:'test'}
+    // },
     {
       path:'/',
       name:'articel',

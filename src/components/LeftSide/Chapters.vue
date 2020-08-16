@@ -1,6 +1,6 @@
 <template>
     <ul class="chapters position-relative">
-        <li class="chapter text-center position-relative" :class="{active:selectedIndex===index}" @click="handleClickChapter(index)" v-for='(item,index) in chapterItems' :key="index">
+        <li class="chapter text-center position-relative" :class="{active:selectedIndex===index}" @click="selectedIndex=index" v-for='(item,index) in chapterItems' :key="index">
             <span>{{item.title}}</span>
         </li>
         <li class="arrow" :style="arrowPosition"></li>
@@ -74,11 +74,10 @@
 <script lang='ts'>
 interface ChapterItem{
     title:string,
-    aheadTo:{name?:string,params?:any,path?:string},
+    aheadTo:{name:string,params?:any,query?:any},
 }
-//默认选中的chapter的index。
-const DEFAULT_SELECTED_INDEX:number=0;
-import {Vue ,Component } from 'vue-property-decorator';
+import {UNSET_NUMBER} from '../../utils/utils';
+import {Vue ,Component, Watch } from 'vue-property-decorator';
 import { RawLocation } from 'vue-router';
 import {INTRODUCTION_ARTICRL_ID, INTRODUCTION_CONTENT_ID} from '../../router'
 @Component
@@ -98,20 +97,26 @@ export default class Chapter extends Vue{
         {
             title:'留言板',
             aheadTo:{name:'comments'},
+        },{
+            title:'测试',
+            aheadTo:{name:'test'}
         }
     ];
     //当前被选中的Chapter 的 Index
-    selectedIndex:number=DEFAULT_SELECTED_INDEX;
-    // 点击选项触发
-    handleClickChapter(index:number):void{
-        //设置箭头滑向哪里
-        this.selectedIndex=index;
-        //跳转路由
-        if(this.$route.name!=this.chapterItems[index].aheadTo.name)
-            this.$router.push(this.chapterItems[index].aheadTo);
+    selectedIndex:number=UNSET_NUMBER;
+    created(){
+        const FIRST_ITEM_INDEX=0;
+        this.selectedIndex=FIRST_ITEM_INDEX;
     }
-
+    //selectedIndex改变触发跳转到相异路由
+    @Watch('selectedIndex')
+    handleSelectedIndexChange(toIndex:number){
+        let toRouteName:string=this.chapterItems[toIndex].aheadTo.name;
+        if(this.$route.name!==toRouteName)
+            this.$router.push(this.chapterItems[toIndex].aheadTo)
+    }
     // 箭头的高度样式
+    //this.selectedIndex改变会触发箭头高度改变
     get arrowPosition():any{
         var piece:number=100/(this.chapterItems.length*2);
         var topPieces:number=this.selectedIndex*2+1;

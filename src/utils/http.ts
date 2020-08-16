@@ -1,4 +1,4 @@
-import Axios, { AxiosResponse } from 'axios';
+import Axios, { AxiosResponse } from 'axios'
 
 //枚举
 import {ServerRespond} from '../types/index';

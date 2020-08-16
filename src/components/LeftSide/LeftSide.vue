@@ -5,15 +5,15 @@
                 <div  v-show="isSeen" @click="handleClickMask" class="mask position-fixed  d-md-none   bg-dark"></div>
             </transition>
             <transition name="content-fade" @after-enter='handleOpen' @after-leave='handleClosed'>
-                <div v-show="isSeen" class="content position-fixed col-md-3 col-8 ">
+                <div v-show="isSeen" class="content d-flex flex-column justify-content-around position-fixed col-md-3 col-8 ">
                     <img 
-                        src="../../assets/orange.jpg" 
+                        src="../../assets/pipi.gif" 
                         alt="网站logo" 
-                        class="img w-25 position-relative mt-3"
+                        class="img w-25 position-relative "
                     />
-                    <overview />
-                    <chapter />
-                    <assistant />
+                    <overview class=''></overview>
+                     <chapter />
+                    <tag />
                 </div>
             </transition>
     </div>
@@ -34,6 +34,10 @@
             display: block;
         }
         .content{
+            &>*{
+                flex:0 1 auto;
+            
+            }
             z-index: 2;
             // 位置
             top: 0;
@@ -48,6 +52,7 @@
 
             .img{
                 border-radius: 50%;
+                // 居中
                 left:50%;
                 transform:translateX(-50%);
             }
@@ -98,14 +103,16 @@ import {Vue ,Component ,Prop, Emit} from 'vue-property-decorator';
 
 
 // 组件
-import Assistant from './Assistant.vue';
+// import Assistant from './Assistant.vue';
 import Chapter from './Chapters.vue';
 import Overview from './Overview.vue';
+import Tag from './Tags.vue';
 @Component({
     components:{
-        Assistant,
+        // Assistant,
         Chapter,
         Overview,
+        Tag,
     }
 })
 export default class LeftSide extends Vue{

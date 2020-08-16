@@ -1,38 +1,46 @@
 <template>
     <div class="assistants position-relative">
         <h6>
-            <span>助力榜：</span>
-            <span>当前助力值：{{user.Assistant}}</span>
+            <span>助力~</span>
+            <small class="text-muted">当前：{{user.Assistant}}</small>
         </h6>
         <ul class="items list-unstyled d-flex justify-content-around">
-            <li  v-for="(assistant,index) in assistants" :key="index">
-                <avatar class="w-100" :name='assistant.Name'  :portrait='assistant.Portrait'/>
+            <li  v-for="assis in assistants" :key="assis.ID" class="position-relative">
+                <avatar class="w-100" :name='assis.Name'  :portrait='assis.Portrait'/>
+                <span class="assistant-count position-absolute text-danger">+{{assis.Count}}</span>
             </li>
         </ul>
-        <button @click="handleClickAssistBtn" class="add-assistant-btn btn btn-outline-dark btn-sm position-relative">
+        <button @click="handleClickAssistBtn" class="add-assistant-btn mb-1 btn btn-outline-dark btn-sm position-relative">
             助力
         </button> 
-        <br/>
-        <request-watcher class="d-block w-100 text-center mt-2" :request='request'>
+        <request-watcher class="position-absolute w-100 text-center" :request='request'>
             <template #loading>
-                助力中...
+                <small>助力中...</small>
             </template>
             <template #done>
-                多谢！
+                <small>多谢！</small>
             </template>
             <template #err>
-                ...出了点小问题
+                <small>...有点小问题</small>
             </template>
-
         </request-watcher>
     </div>
 </template>
 <style lang="scss">
     .assistants{
         .items{
+            margin-bottom: 0;
             li{
                 flex: 0 0 auto;
                 width: 12%;
+                .assistant-count{
+                    // avatar点赞数量再头像的右上角
+                    right:0;
+                    top: 0;
+                    transform: translateX(50%) translateY(-50%);
+                    //背景颜色为透明
+                    background-color: transparent;
+                }
             }
         }
         .add-assistant-btn{
@@ -45,7 +53,7 @@
 import {Vue ,Component } from 'vue-property-decorator';
 import {mixins} from 'vue-class-component';
 // 类型
-import {User,ServerRespond } from '../../types/index';
+import {User,ServerRespond ,AssistantVM} from '../../types/index';
 //mixin
 import userTrace from '../../mixins/UserTrace.vue'
 // 组件
@@ -65,7 +73,7 @@ const LENGTH_OF_ASSISTANTS=3;
     }
 })
 export default class Assistant extends mixins(userTrace){
-    assistants:User[]=[];
+    assistants:AssistantVM[]=[];
     // 当前用户信息,
     //空对象是初始值占着这个坑
     user:User=<User>{};
@@ -79,21 +87,20 @@ export default class Assistant extends mixins(userTrace){
     onUserUpdate(latestUser:User):void{
         //更新用户自己的信息
         this.user=latestUser;
-        // console.log("接受到新用户信息，",latestUser);
-        //更新助力值列表
-            //原本助力值列表就有用户ID的话,直接修改列表内的助力值
-            // 不然就加入用户的信息,重新排序,截取前三
+        //根据ID，查看助力值列表内是否有自己的。
+        // 有自己的就光修改自己的数据
+        // 没自己的就先试试把自己加上去，然后选前三
         let isOverride:boolean=new Set([...this.assistants.map(instance=>instance.ID),latestUser.ID]).size==this.assistants.length;
-        if(isOverride){//有重复的值，直接修改助力榜内自己的助力值
-            let newList:User[]=[...this.assistants].map(user=>{
+        if(isOverride){//有重复的值，直接修改助力列表内自己的助力值
+            let newList:AssistantVM[]=[...this.assistants].map(user=>{
                 //是自己信息的Assistant更新一下最新值
                 if(user.ID===latestUser.ID){
-                    let latestAssistant:User= Object.assign(user,
+                    let latestAssistant:AssistantVM= Object.assign(user,
                     {
-                        Assistant:latestUser.Assistant,
+                        Count:latestUser.Assistant,
                         Name:latestUser.Name,
                         Portrait:latestUser.Portrait
-                    } as User);
+                    } as AssistantVM);
                     return Object.assign({},latestAssistant);
                 }
                 //不是自己信息的Assistant直接返回
@@ -101,19 +108,17 @@ export default class Assistant extends mixins(userTrace){
             });
             this.assistants=newList;
         }else{
-            let user:User={ID:latestUser.ID,Name:latestUser.Name,Assistant:latestUser.Assistant,Portrait:latestUser.Portrait};
-            let newList:User[]=[...this.assistants,user].filter(user=>user.Assistant>0).sort((a,b)=>(b as User).Assistant-(a as User).Assistant).slice(0,LENGTH_OF_ASSISTANTS);
-            this.assistants=newList;
+            let user:AssistantVM={ID:latestUser.ID,Name:latestUser.Name,Count:latestUser.Assistant,Portrait:latestUser.Portrait};
+           this.assistants=[...this.assistants,user].filter(user=>user.Count>0).sort((a:AssistantVM,b:AssistantVM)=>b.Count-a.Count).slice(0,LENGTH_OF_ASSISTANTS);
         }
     }
     created(){
         this.isRequesting=true;
-        // 初始化助力值列表
-        var axios:AxiosInstance=this.$axios;
-        axios({
+        //请求助力值
+        (this.$axios as AxiosInstance)({
             url:INIT_ASSISTANT,
-        }).then(({data})=>{
-            this.assistants=(data as ServerRespond).Data;
+        }).then(({data:{Data}})=>{
+            this.assistants=Data;
             this.isRequesting=false;
         })
     }
@@ -121,22 +126,22 @@ export default class Assistant extends mixins(userTrace){
     async handleClickAssistBtn():Promise<any>{
         if(this.isRequesting) return ;
         this.isRequesting=true;
-        this.request=this.requestAddAssistant();
+        this.request=this.handleAssistantAdded();
         await this.request;
         this.isRequesting=false;
     }
-    // 请求添加助力值
+    async handleAssistantAdded():Promise<any>{
+        await this.requestAddAssistant()
+            .then(({data:{Data}})=>{//返回值是用户当前助力值
+                // 更新全局用户信息
+                this.$mergeUser(<User>{Assistant:Data})
+            })
+    }
+    // 发起添加助力值请求
     requestAddAssistant():Promise<any>{
-        var http:AxiosInstance=this.$axios;
-         return http({
+        return (this.$axios as AxiosInstance)({
             url:ADD_ASSISTANT,
-        }).then(({data})=>{
-            //最新的助力值
-            let latestAssistant=(data as ServerRespond).Data;
-            //最新助力值更新到用户上
-            var newUser:User=<User>{Assistant:latestAssistant};
-            this.$mergeUser(newUser);
-        });
+        })
     }
 }
 </script>

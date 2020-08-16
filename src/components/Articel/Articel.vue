@@ -24,6 +24,7 @@
         }
         .content{
             min-height: 8rem;
+            line-height: 1.8rem;
             .articel-text{
                 // 字体缩进
                 text-indent: 2rem;
@@ -66,8 +67,8 @@
 </style>
 <template>
     <div class="articel">
-        <h5>{{title}}</h5>
-        <div class="info">
+        <h2 class="mt-4">{{title}}</h2>
+        <div class=" info mt-3 ">
             <label :class="{'info-set':isGratful}"  @click="handleToggleOpinion">
                 点赞数:{{articel.GratfulCount}}
             </label>
@@ -89,7 +90,7 @@
                 <loading v-else class="articel-loading"></loading>
             </transition>
         </div>
-        <div class="pages d-flex">
+        <div class="pages d-flex mt-4 ">
             <div @click="handleFlipOver(LastPage)" class="page  d-flex last-page w-50 ">
                 <p class="page-title px-3">
                     {{LastPage.Title}}
