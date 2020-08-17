@@ -1,22 +1,6 @@
 <style lang="scss">
     @import '../../style/mixin/utils';
-    //切换动画
-    .switch-enter-active{
-        animation:switching .12s reverse linear;
-        position:absolute;
-    }
-    .switch-leave-active{
-        animation:switching .12s linear;
-        position:absolute;
-    }
-    @keyframes switching {
-        0%{
-            opacity: 1;
-        }
-        100%{
-            opacity: 0; 
-        }
-    }
+    
     .articel{
         .info{
             //点赞被选中的时候变成红色
@@ -25,6 +9,7 @@
         .content{
             min-height: 8rem;
             line-height: 1.8rem;
+            z-index: 2;                //这里的作用 跟 .articel-cmt 一起，为了加载时不要让输入框遮住全文
             .articel-text{
                 // 字体缩进
                 text-indent: 2rem;
@@ -37,6 +22,9 @@
                 margin-left:50%;
                 transform: translateX(-50%);
             }
+        }
+        .articel-cmt{
+            z-index: 1;
         }
         .pages{
             .page{
@@ -69,28 +57,49 @@
     <div class="articel">
         <h2 class="mt-4">{{title}}</h2>
         <div class=" info mt-3 ">
-            <label :class="{'info-set':isGratful}"  @click="handleToggleOpinion">
-                点赞数:{{articel.GratfulCount}}
+            <label :class="{'info-set':isGratful}" class="mr-3"  @click="handleToggleOpinion">
+                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-suit-heart-fill " fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 1c2.21 0 4 1.755 4 3.92C8 2.755 9.79 1 12 1s4 1.755 4 3.92c0 3.263-3.234 4.414-7.608 9.608a.513.513 0 0 1-.784 0C3.234 9.334 0 8.183 0 4.92 0 2.755 1.79 1 4 1z"/>
+                </svg>
+                
+                {{articel.GratfulCount}}
             </label>
-            <label >
-                评论：{{articel.CommentCount}}
+            <label  class="mr-3">
+                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-chat-right-quote" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M2 1h12a1 1 0 0 1 1 1v11.586l-2-2A2 2 0 0 0 11.586 11H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zm12-1a2 2 0 0 1 2 2v12.793a.5.5 0 0 1-.854.353l-2.853-2.853a1 1 0 0 0-.707-.293H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12z"/>
+                    <path fill-rule="evenodd" d="M7.066 4.76A1.665 1.665 0 0 0 4 5.668a1.667 1.667 0 0 0 2.561 1.406c-.131.389-.375.804-.777 1.22a.417.417 0 1 0 .6.58c1.486-1.54 1.293-3.214.682-4.112zm4 0A1.665 1.665 0 0 0 8 5.668a1.667 1.667 0 0 0 2.561 1.406c-.131.389-.375.804-.777 1.22a.417.417 0 1 0 .6.58c1.486-1.54 1.293-3.214.682-4.112z"/>
+                </svg>
+                {{articel.CommentCount}}
             </label>
-            <label>
-                标签：{{articel.TagName}}
+            <label class="mr-3">
+                <svg width="1em" style="transform:rotateZ(90deg)" height="1em" viewBox="0 0 16 16" class="bi bi-tags " fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M3 2v4.586l7 7L14.586 9l-7-7H3zM2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 6.586V2z"/>
+                    <path fill-rule="evenodd" d="M5.5 5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1zm0 1a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>
+                    <path d="M1 7.086a1 1 0 0 0 .293.707L8.75 15.25l-.043.043a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 0 7.586V3a1 1 0 0 1 1-1v5.086z"/>
+                </svg>
+                {{articel.TagName}}
             </label>
-            <label>
-                发表时间{{articel.Time}}
+            <label class="mr-3">
+                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-alarm" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M8 15A6 6 0 1 0 8 3a6 6 0 0 0 0 12zm0 1A7 7 0 1 0 8 2a7 7 0 0 0 0 14z"/>
+                    <path fill-rule="evenodd" d="M8 4.5a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.053.224l-1.5 3a.5.5 0 1 1-.894-.448L7.5 8.882V5a.5.5 0 0 1 .5-.5z"/>
+                    <path d="M.86 5.387A2.5 2.5 0 1 1 4.387 1.86 8.035 8.035 0 0 0 .86 5.387zM11.613 1.86a2.5 2.5 0 1 1 3.527 3.527 8.035 8.035 0 0 0-3.527-3.527z"/>
+                    <path fill-rule="evenodd" d="M11.646 14.146a.5.5 0 0 1 .708 0l1 1a.5.5 0 0 1-.708.708l-1-1a.5.5 0 0 1 0-.708zm-7.292 0a.5.5 0 0 0-.708 0l-1 1a.5.5 0 0 0 .708.708l1-1a.5.5 0 0 0 0-.708zM5.5.5A.5.5 0 0 1 6 0h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1-.5-.5z"/>
+                    <path d="M7 1h2v2H7V1z"/>
+                </svg>
+                {{articel.Time}}
             </label>
         </div>
         <!-- 下划线 --> 
         <hr />
         <div class="content position-relative ">
-            <transition name="switch" @after-enter='handleContextFadeIn' mode="out-in">
-                <p v-if='isLoading===false' class="articel-text">{{context.repeat(15)}}</p>
+            <!-- @after-enter='handleContextFadeIn' -->
+            <transition name="loading-switching"  mode="out-in">
+                <p v-if='isLoading===false' class="articel-text">{{context}}</p>
                 <loading v-else class="articel-loading"></loading>
             </transition>
         </div>
-        <div class="pages d-flex mt-4 ">
+        <div class="pages d-flex my-5 mx-3 px-md-5">
             <div @click="handleFlipOver(LastPage)" class="page  d-flex last-page w-50 ">
                 <p class="page-title px-3">
                     {{LastPage.Title}}
@@ -102,13 +111,13 @@
                 </p>
             </div>
         </div>
-        <cmts @on-comment-uploaded='articel.CommentCount++' :contentID='contentID'></cmts>
+        <cmts class="articel-cmt position-relative" @on-comment-uploaded='articel.CommentCount++' :contentID='contentID'></cmts>
     </div>
 </template>
 <script lang="ts">
 import {Vue ,Component ,Prop, Watch ,Mixins} from 'vue-property-decorator'; 
 //组件 
-import Comments from '@views/Comments.vue';
+import Comments from '@com/Comment/Comments.vue';
 import Loading from '@com/loading.vue';
 //类型
 import {ArticelVM as VM ,NaviInfo as Page, User} from '../../types/index';
@@ -174,6 +183,9 @@ export default class Articel extends Mixins(UserTrace){
     //文章ID改变的时候请求新数据
     @Watch('articelID')
     async handleArticelChange():Promise<any>{
+        //滚到最上面
+        scrollToTop(document.documentElement,0);
+        // 请求数据
         this.isLoading=true;
         await this.updateInfo();
         this.isLoading=false;
@@ -190,9 +202,9 @@ export default class Articel extends Mixins(UserTrace){
     }
     //内容淡入完成的时候执行
     //让页面滚到最上面
-    handleContextFadeIn():void{
+    /* handleContextFadeIn():void{
         scrollToTop(document.documentElement,0);
-    }
+    } */
     //点击点赞按钮
     handleToggleOpinion():void{
         if(this.isLoading) return ;

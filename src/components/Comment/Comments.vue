@@ -1,15 +1,6 @@
 
-<style lang="scss">
-    .comments{
-        /* 输入框不可调节 */
-        textarea{resize: none;}
-        .comments-write-avatar{
-            width:3rem;
-        }
-    }
-</style>
 <template>
-    <div class="comments ">
+    <div class="comments">
         <!-- 提交评论部分 -->
         <div class="media">
             <avatar class="comments-write-avatar mr-3" name='' :portrait='observerPortrait'></avatar>
@@ -48,40 +39,68 @@
             <button class="btn btn-outline-dark ml-3" @click="handleClickSubmitBtn">提交</button>
         </div>
         <!-- 评论列表 -->
-        <ul class="comment-list">
-            <li v-for='(h,index) in commentHierarchies' :key="index">
-                <cmt @click.native="handleClickComment(h.comment.CommentID,h.comment.ObserverID,h.comment.ObserverName)" :user='user' :comment='h.comment'>
-                    <ul class="sub-comment-list" v-if='h.subComments&&h.subComments.length>0'>
-                        <li v-for="(subcomment,index) in h.subComments" :key="index">
-                            <cmt @click.native="handleClickComment(h.comment.CommentID,subcomment.ObserverID,subcomment.ObserverName)" :user='user' :comment='subcomment'></cmt>
-                        </li>
-                    </ul>
-                </cmt>
-            </li>
-        </ul>
+        <transition name="loading-switching" mode="out-in">
+            <loading v-if="isLoading" class="d-inline text-center"></loading>
+            <ul v-else class="main-list mt-4">
+                <li class="mb-5 pb-3" v-for='(h,index) in commentHierarchies'  :key="index">
+                    <cmt class="main-com " @click.native="handleClickComment(h.comment.CommentID,h.comment.ObserverID,h.comment.ObserverName)" :user='user' :comment='h.comment'>
+                        <ul class="sub-list " v-if='h.subComments&&h.subComments.length>0'>
+                            <li v-for="(subcomment,index) in h.subComments" :key="index">
+                                <cmt class="sub-com"  @click.native="handleClickComment(h.comment.CommentID,subcomment.ObserverID,subcomment.ObserverName)" :user='user' :comment='subcomment'></cmt>
+                            </li>
+                        </ul>
+                    </cmt>
+                </li>
+            </ul>
+        </transition>
+        
     </div>
 </template>
+<style lang="scss">
+    .comments{
+        /* 输入框不可调节 */
+        textarea{resize: none;}
+        .comments-write-avatar{
+            width:3rem;
+        }
+        .main-list{
+            .main-com{
+                & *{
+                    font-size: 1.1rem;
+                }
+                .sub-list{
+                    .sub-com{
+                        & * {
+                            font-size: 0.8rem;
+                        }
+                    }
+                }
+            }
+        }
+        
+    }
+</style>
 <script lang="ts">
 import {Vue ,Component ,Prop, Watch, Emit} from 'vue-property-decorator';
 import {mixins} from 'vue-class-component'
 // 组件
-import Comment from '@com/Comment.vue';
+import Comment from '@com/Comment/Comment.vue';
 import Avatar from '@com/Avatar.vue';
 import RequestWatcher from '@com/RequestWatcher.vue';
 import ValidForm from '@com/ValidForm/ValidForm.vue';
 import ValidInput from '@com/ValidForm/ValidInput.vue';
+import Loading from '@com/loading.vue';
 // mixins
 import UserTrace from '@mixins/UserTrace.vue';
 // 类型
-import { User ,CommentViewModel as VM,SentComment as sentCMT} from '../types';
 import { AxiosInstance } from 'axios';
-import {ValidInfo } from '../types/index';
+import {ValidInfo ,User ,CommentViewModel as VM,SentComment as sentCMT} from '../../types/index'
 // url,常量
-import {UPLOAD_COMMENT as SUBMIT,GET_COMMENTS as FETCH,UPDATE_USER} from '../utils/url.ts';
+import {UPLOAD_COMMENT as SUBMIT,GET_COMMENTS as FETCH,UPDATE_USER} from '../../utils/url';
 import Footer from '@/components/Footer.vue';
 import { UNSER_VIEREW_NAME } from '@/utils/utils';
 //方法
-import {latestUser } from '../utils/userMgr/index';
+import {latestUser } from '../../utils/userMgr/index';
 //改值代表未设置值【无效值
 const UNSER_NUMBER:number=-1;
 // 评论层级
@@ -119,6 +138,8 @@ interface ValidDump{
 
         'vf':ValidForm,
         'vi':ValidInput,
+
+        Loading,
     }
 })
 export default class Comments extends mixins(UserTrace){
@@ -142,7 +163,7 @@ export default class Comments extends mixins(UserTrace){
         name:{
             attr:'name',
             validator:(value:string)=>{
-                let regex:RegExp=/^\w{0,6}$/;
+                let regex:RegExp=/^[^\f\n\r]{0,6}$/;
                 // 既没有设置过用户名又没有写过任何字
                 if(!latestUser().Name&&!value.trim()) return false;
                 return regex.test(value)
@@ -209,9 +230,13 @@ export default class Comments extends mixins(UserTrace){
         // 此处请求评论列表跟 onUserInited 中请求评论并不冲突
         //有userID就是已经UserIntited执行过了。
         if(this.user.ID){
+            this.isLoading=true
             this.requestGetComments()
                 .then(({data:{Data}})=>{
                     this.comments=Data;
+                })
+                .finally(()=>{
+                    this.isLoading=false;
                 });
         }
     }
@@ -266,13 +291,14 @@ export default class Comments extends mixins(UserTrace){
                 Contact:curInputing.contact.value||undefined,
             } as User))
         this.request=Promise.allSettled(requests);
-        //处理接受到的数据
         await this.request
+            //处理接受到的数据
             .then(([com_reply,user_reply])=>{
                 if(user_reply&&user_reply.status==="fulfilled"){
                     let newUser:User=<User>{};
                     curInputing.name.value&&(()=>{newUser.Name=curInputing.name.value})();
                     curInputing.contact.value&&(()=>{newUser.Contact=curInputing.contact.value})();
+                    //修改全局用户信息
                     this.$mergeUser(newUser);
                 }
                 if(com_reply.status==='fulfilled'){
@@ -298,7 +324,15 @@ export default class Comments extends mixins(UserTrace){
             })
             //清除数据
             .finally(()=>{
-
+                this.resetInputingComment();
+                this.resetInputingUser();//注册下一个then
+            })
+            .then(()=>{
+                // this.handleVlidated(根据验证结果修改bool值以控制是否显示错误提示文字）执行后才执行此微任务
+                //取消验证状态
+                Object.keys(this.validState).forEach(name=>{
+                    this.validState[name]=true;
+                })
             })
         this.isLoading=false;
     }

@@ -17,3 +17,19 @@ div,p,span,a{
 }
 
 
+
+
+.loading-switching-enter-active{
+    animation: switch-loading .38s linear;
+}
+.loading-switching-leave-active{
+    animation: switch-loading .38s linear reverse;
+}
+@keyframes switch-loading{
+    0%{
+        opacity: 0;
+    }
+    100%{
+        opacity: 1;
+    }
+}

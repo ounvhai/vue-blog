@@ -1,6 +1,6 @@
 <template>
     <ul class="chapters position-relative">
-        <li class="chapter text-center position-relative" :class="{active:selectedIndex===index}" @click="selectedIndex=index" v-for='(item,index) in chapterItems' :key="index">
+        <li class="chapter text-center position-relative" :class="{active:selectedIndex===index}" @click="handleClickItem(index)" v-for='(item,index) in chapterItems' :key="index">
             <span>{{item.title}}</span>
         </li>
         <li class="arrow" :style="arrowPosition"></li>
@@ -92,7 +92,9 @@ export default class Chapter extends Vue{
         },
         {
             title:'主页',
-            aheadTo:{name:'main'},
+            aheadTo:{name:'main',params:{
+                tagID:undefined,
+            }},
         },
         {
             title:'留言板',
@@ -108,12 +110,14 @@ export default class Chapter extends Vue{
         const FIRST_ITEM_INDEX=0;
         this.selectedIndex=FIRST_ITEM_INDEX;
     }
-    //selectedIndex改变触发跳转到相异路由
-    @Watch('selectedIndex')
-    handleSelectedIndexChange(toIndex:number){
-        let toRouteName:string=this.chapterItems[toIndex].aheadTo.name;
-        if(this.$route.name!==toRouteName)
-            this.$router.push(this.chapterItems[toIndex].aheadTo)
+    
+    handleClickItem(index:number):void{
+        //修改 selectedIndex 让他到指定地方
+        if(this.selectedIndex!==index)
+            this.selectedIndex=index;
+            //跳转到指定路由
+        this.$router.push(this.chapterItems[this.selectedIndex].aheadTo)
+            
     }
     // 箭头的高度样式
     //this.selectedIndex改变会触发箭头高度改变

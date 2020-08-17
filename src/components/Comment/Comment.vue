@@ -1,12 +1,12 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 // 组件
-import Avatar from './Avatar.vue';
+import Avatar from '@com/Avatar.vue';
 import Opinion from '@com/Opinion.vue';
 // 类型
-import {SentComment as Sent ,CommentViewModel as VM, User } from '../types/index'; 
+import {SentComment as Sent ,CommentViewModel as VM, User } from '../../types/index'; 
 // 常量
-import {UNSET_NUMBER, UNSER_VIEREW_NAME} from '../utils/utils.ts';
+import {UNSET_NUMBER, UNSER_VIEREW_NAME} from '../../utils/utils';
 @Component({
     components:{
         Avatar,
@@ -51,27 +51,26 @@ export default class Comment extends Vue {
 }
 </script>
 <template>
-    <div class="comment">
-        <div class="comment-main d-flex">
+    <div class="comment ">
+        <div class="comment-main d-flex justify-content-center">
             <!-- 头像 -->
             <avatar class="comment-avatar " name='' :portrait='comment.ObsererPortrait'/>
             <!-- 回复的内容 -->
-            <div class="context d-inline">
+            <p class="context d-inline">
                 <span class="responder">
-                    <span v-if="comment.ObserverID===user.ID" class="text-muted">(自己)</span> 
-                    {{observerName}}
+                    <!-- 自己的评论放 一个 【自己标识】 -->
+                    <small v-if="comment.ObserverID===user.ID" class="text-muted">(自己)</small> 
+                    <span >{{observerName}}</span>
                     <template v-if="isReplyOther">
-                        <span class="text-muted">回复</span>
-                        <span v-if="comment.ResponsedViewerID===user.ID" class="text-muted">(自己)</span> 
-                        {{reponsedViewerName}}
+                        <small class="text-muted mx-2">回复</small>
+                        <small v-if="comment.ResponsedViewerID===user.ID" class="text-muted">(自己)</small> 
+                        <span >{{reponsedViewerName}}</span>
                     </template>
                     ：
                 </span>
-                {{context}}
+                <span class="h6">{{context}}</span>
                 <span class="text-muted">{{publicTime}}</span>
-            </div>
-            <!-- 点赞 -->
-            <!-- <Opinion class="comment-opnion" :isZan='false' :contentID='contentID'></Opinion> -->
+            </p>
         </div>
         <slot></slot>
     </div>
@@ -88,7 +87,7 @@ export default class Comment extends Vue {
             // 评论内容
             .context{
                 //中间自适应
-                flex:1 1 auto;
+                // flex:1 1 auto;
                 .responder{
                     
                 }

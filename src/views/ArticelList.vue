@@ -1,31 +1,35 @@
 <template>
 
-<!-- 鼠标滑动过程中，到底了，就请求新数据。 -->
-
-<!-- 
-    检查是否已经在在页底了。
-    
- -->
-
-
 <div class="articels">
-    <ul class="articel-list">
-        <li v-for="a in articels" :key="a.ArticelID">
-            <item @click.native="handleClickArticelItem(a)" :articel='a'></item>
-        </li>
-    </ul>
+    <div>
+        <ul class="articel-list">
+            <li v-for="a in articels" :key="a.ArticelID">
+                <item @click.native="handleClickArticelItem(a)" :articel='a'></item>
+            </li>
+        </ul>
+        <div class="decorate text-center my-5">
+            <transition name='loading-switching'>
+                <loading v-show="isLoading"></loading>
+            </transition>
+            <h6 class="" v-if="isAllLoaded">- - 木有啦 - - </h6>
+            
+            <h6 class=" " v-show='isLoading'>--加载中--</h6>
+
+        </div>
+        
+    </div>
 </div>
 </template>
 <script lang="ts">
-import {Vue ,Component ,Prop} from 'vue-property-decorator';
+import {Vue ,Component ,Prop, Watch} from 'vue-property-decorator';
 //类型
 import {ArticelVM as VM} from '../types/index'
 //组件
 import ArticelItem from '@com/Articel/ArticelListItem.vue';
+import Loading from '@com/loading.vue'
 //常量
 import {GET_ARTICEL_PAGE} from '../utils/url';
 import { AxiosInstance } from 'axios';
-import func from 'vue-temp/vue-editor-bridge';
 //方法
 import {innerHeight, scrollToTop,throttle} from '../utils/utils';
 //第一页的页码
@@ -51,9 +55,12 @@ let handleWindowScrollThrottle=throttle(function(){
 @Component({
     components:{
         item:ArticelItem,
+        Loading,
     }
 })
 export default class ArticelList extends Vue{
+
+    @Prop({required:false}) tagID:number;
     
     //文章列表
     articels:VM[]=[];
@@ -65,8 +72,7 @@ export default class ArticelList extends Vue{
     isAllLoaded:boolean=false;
 
     created(){ 
-         this.handleLoadMore()
-
+         this.handleLoadMore();
     }
     mounted(){
         //绑定滚动监听事件/
@@ -75,6 +81,15 @@ export default class ArticelList extends Vue{
     beforeDestroy(){
         //解绑滚动监听事件
         document.addEventListener.call(window,'scroll',this.onScrollThrottle);
+    }
+    @Watch('$route')
+    handleRouteUpdate():void{
+        this.curPage=0;
+        this.articels=[];
+        this.isAllLoaded=false;
+        this.isLoading=false;//为了可以进行下一页的请求
+        scrollToTop(document.documentElement,0);
+        this.handleLoadMore();
     }
     //加载下一页数据
     async handleLoadMore():Promise<any>{
@@ -104,6 +119,7 @@ export default class ArticelList extends Vue{
         })
     }
     //请求下一页数据
+    //根据给定的常量PageSize，还有当前的页数，当前的TagID，相对的求下一页的数据
     requestNextPage():Promise<any>{
         let nextPage:number=this.curPage+1;
         return  (this.$axios as AxiosInstance)({
@@ -112,9 +128,12 @@ export default class ArticelList extends Vue{
             params:{
                 pageSize:PAGE_SIZE,
                 pageNumber:nextPage,
+                tagID:this.tagID,//有可能是undefined
             }
         })
     }
+
+    // 绑定了本组件实例的一个节流器，鼠标滚动的时候触发
     get onScrollThrottle():()=>void{
         return handleWindowScrollThrottle.bind(this);
     }

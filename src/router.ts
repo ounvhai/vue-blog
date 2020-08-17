@@ -37,9 +37,10 @@ export default new Router({
       component:()=>import('@com/Articel/Articel.vue'),
     },
     {
-      path:'/Main',
+      path:'Articels/:tagID',
       name:'main',
       component:()=>import('@views/ArticelList.vue'),
+      props:true,
     },
     {
       /* 测试路由 */
@@ -54,7 +55,7 @@ export default new Router({
     {/* 留言板 */
       path:'/Comments',
       name:'comments',
-      component:()=>import("@views/Comments.vue"),
+      component:()=>import("@views/CommentBlock.vue"),
       props:{
         contentID:CONTENT_ID_OF_COMMENT,
       }

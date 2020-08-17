@@ -5,7 +5,7 @@
                 <div  v-show="isSeen" @click="handleClickMask" class="mask position-fixed  d-md-none   bg-dark"></div>
             </transition>
             <transition name="content-fade" @after-enter='handleOpen' @after-leave='handleClosed'>
-                <div v-show="isSeen" class="content d-flex flex-column justify-content-around position-fixed col-md-3 col-8 ">
+                <div v-show="isSeen" class="content d-flex flex-column justify-content-start position-fixed col-md-3 col-8 ">
                     <img 
                         src="../../assets/pipi.gif" 
                         alt="网站logo" 
@@ -13,7 +13,7 @@
                     />
                     <overview class=''></overview>
                      <chapter />
-                    <tag />
+                    <tag @on-click-tag='handleClickTag' :selectedTagID='tagID'></tag>
                 </div>
             </transition>
     </div>
@@ -118,6 +118,8 @@ import Tag from './Tags.vue';
 export default class LeftSide extends Vue{
     // 是否显示
     @Prop({type:Boolean}) isSeen!:boolean;
+    
+
     //告诉父元素点了遮罩
     @Emit('on-click-mask') clickMask():void{};
     // 告诉父元素组件关闭完了
@@ -127,6 +129,24 @@ export default class LeftSide extends Vue{
     handleClickMask(){
         // 告诉父组件修改isSeen
         this.clickMask();
+    }
+    //触发了tag标签
+    //跳转到指定路由
+    handleClickTag(toTagID?:number):void{
+        let curTagID:number|undefined=this.$route.params?this.$route.params.tagID:undefined;
+        if((this.$route.name==="main"&& curTagID === toTagID)===false){//要跳转到的路由不是现在的路由即可跳转
+            this.$router.push({
+                name:'main',
+                params:{
+                    'tagID':toTagID,
+                }
+            });
+        }
+    }
+    //如果在name=main的路由下且有tagID.那就返回指定ID
+    get tagID():number|undefined{
+        if(this.$route.name==='main' && this.$route.params && this.$route.params.tagID)
+            return +this.$route.params.tagID;
     }
 }
 </script>

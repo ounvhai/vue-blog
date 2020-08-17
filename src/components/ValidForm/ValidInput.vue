@@ -1,9 +1,7 @@
 <template>
     <div class="valid-item">
         <slot></slot>
-        <small>
             <state :request='curState'></state>
-        </small>
     </div>
 </template>
 <script lang="ts">

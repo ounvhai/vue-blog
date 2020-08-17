@@ -3,8 +3,8 @@
         <span>
             标签...
         </span>
-        <ul v-if='hasAnyTag' class="d-flex flex-wrap tag-collection py-2">
-            <li @click="handleClickTag(index)" v-for='(t,index) in tags' :key="index" :class="{'active':activeIndex===index}" class="tag-item ml-1 mt-2">
+        <ul v-if='tags.length>0' class="d-flex flex-wrap tag-collection py-2">
+            <li @click="handleClickTag(t.ID)" v-for='(t,index) in tags' :key="index" :class="{'active':activeIndex===index}" class="tag-item ml-1 mt-2">
                 <small class="tag-name  d-inline-block px-2 py-1 ">{{t.Name}}</small>
             </li>
         </ul>
@@ -47,6 +47,8 @@ import {Vue ,Component ,Prop, Watch, Emit} from 'vue-property-decorator';
 import Loading from '../loading.vue';
 //路径
 import {GET_ALL_TAG} from '../../utils/url';
+//常量
+import {UNSET_NUMBER}  from '../../utils/utils';
 //接口 
 import {TagVM} from '../../types/index';
 import { AxiosInstance } from 'axios';
@@ -58,36 +60,43 @@ import { AxiosInstance } from 'axios';
     }
 })
 export default class Tags extends Vue{
+    @Prop({required:false,default:UNSET_NUMBER}) selectedTagID!:number
     //标签们
-    tags:TagVM[]=[];
+    tags:TagVM[]=[({
+        ID:UNSET_NUMBER,
+        Name:'全部',
+    } )];
 
-    activeIndex:number=0;
+
+    //告知父元素点了哪个tagID 
     @Emit('on-click-tag')
-    onClickTag(index:number){}
+    onClickTag(tagID?:number){}
     created(){
-        this.requestTags()
-            .then(({data:{Data}})=>{
-                this.tags=Data as TagVM[];
-                
-            });
-    }
-    // 点了标签触发
-    // 更新activeIndex,告知父组件点了哪个标签
-    handleClickTag(index:number):void{
-        //点击相同标签则返回
-        if(index===this.activeIndex) return ;
-        this.activeIndex=index;
-        // 告诉父组件点了标签
-        this.onClickTag(index);
-    }
-    requestTags():Promise<any>{
-        return (this.$axios as AxiosInstance)({
+        //初始化标签数据
+        (this.$axios as AxiosInstance)({
             method:'get',
             url:GET_ALL_TAG,
         })
+            .then(({data:{Data}})=>{
+                this.tags=[...this.tags,...Data as TagVM[]];
+            });
     }
-    get hasAnyTag():boolean{
-        return this.tags&&this.tags.length>0
+
+    
+    // 点了标签触发
+    //,告知父组件点了哪个tagID的标签
+    handleClickTag(tagdID:number):void{
+        let curTagID:number|undefined=tagdID===UNSET_NUMBER?undefined:tagdID
+        this.onClickTag(curTagID);
+    }
+
+
+
+    //根据对应选择的tagID，筛选出当前选中的TagVM的Index
+    get activeIndex():number{
+        let selected:TagVM=this.tags.filter(el=>el.ID===this.selectedTagID)[0];
+        return this.tags.indexOf(selected);
+
     }
 }
 </script>

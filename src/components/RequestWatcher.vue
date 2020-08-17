@@ -39,6 +39,7 @@ export default class RequestWatcher extends Vue{
         if((newValue instanceof Promise)===false) return ;
         this.resetState();
         this.state.isLoading=true;
+        // 观察Promise的各个状态并切换hint
         (this.request as Promise<any>)
             .then((data)=>{
                 this.resetState();
@@ -69,26 +70,45 @@ export default class RequestWatcher extends Vue{
             err:undefined,
         }
     }
+    
 }
 </script>
+<style lang="scss">
+    .request-watcher-enter-active{
+        animation: request-watcher-fading .2s ease-out;
+    }
+    .request-watcher-leave-active{
+        animation: request-watcher-fading .2s ease-out reverse;
+    }
+    @keyframes request-watcher-fading{
+        0%{
+            opacity: 0.38;
+        }
+        100%{
+            opacity: 1;
+        }
+    }
+</style>
 <template>
-    <div class="request-watcher">
-        <label v-if='state.isLoading===true' class="text-warning">
-            <slot  name="loading"></slot>
-        </label>
-        <label v-else-if='state.isDone===true' class="text-success">
-            <template v-if='hints.done'>
-                {{hint.done}}
-            </template>
-            <slot v-else name="done">
-            </slot>
-        </label>
-        <label v-else-if='state.isErr===true' class="text-danger">
-            <template v-if='hints.err'>
-                {{hints.err}}
-            </template>
-            <slot v-else name="err">
-            </slot>
-        </label>
+    <div class="request-watcher" >
+        <transition name="request-watcher" mode="out-in">
+            <small v-if='state.isLoading===true' key='loading' class="text-warning">
+                <slot  name="loading"></slot>
+            </small>
+            <small v-else-if='state.isDone===true' key='done' class="text-success">
+                <template v-if='hints.done'>
+                    {{hint.done}}
+                </template>
+                <slot v-else name="done">
+                </slot>
+            </small>
+            <small v-else-if='state.isErr===true' key="err" class="text-danger">
+                <template v-if='hints.err'>
+                    {{hints.err}}
+                </template>
+                <slot v-else name="err">
+                </slot>
+            </small>
+        </transition>
     </div>
 </template>

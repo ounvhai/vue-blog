@@ -80,6 +80,8 @@ export default class App extends Vue{
     isSeen:boolean=true;
 
     isLeftSideFading:boolean=false;
+
+
     
     created(){
         // 请求用户
