@@ -68,12 +68,13 @@ import {Vue ,Component ,Ref} from 'vue-property-decorator';
 import LeftSide from '@com/LeftSide/LeftSide.vue' 
 import Footer from '@com/Footer.vue';
 // Utils
-import {innerHeight, isThePortable} from "../src/utils/utils";
+import {innerHeight, isThePortable ,hasCookie ,USER_ID_COOKIE_NAME} from "./utils/utils";
 //URL
 import {FETCH_USER} from './utils/url'
 // 类型
 import { AxiosInstance } from 'axios';
-import {ServerRespond} from './types/index';
+import {ServerRespond, User} from './types/index';
+
 @Component({
     components:{
         LeftSide, 
@@ -88,15 +89,26 @@ export default class App extends Vue{
 
     
     created(){
-        // 请求用户
+        //请求用户数据
+        //如果本地有存储UserID，获得UserID指向的实例
+        //不然就不传ID让数据数据库建一个新的
+        let userID:number|undefined;
+        if(localStorage.UserID)
+            userID=+(localStorage.UserID);
         (this.$axios as AxiosInstance)({
             url:FETCH_USER,
-        }).then(({data})=>{
-            let serverRespond:ServerRespond=data;
-            this.$mergeUser(serverRespond.Data);
+            method:'get',
+            params:{
+                userID,
+            }
+        }).then(({data:{Data}})=>{
+            let latestUser:User=Data
+            //更新全局user数据
+            if(!localStorage.UserID)
+                localStorage.setItem("UserID",latestUser.ID.toString());
+            this.$mergeUser(latestUser);
         })
     }
-
     mounted():void{
         // 确保滚动条一直都在，减少重排
         var offset:number=20;

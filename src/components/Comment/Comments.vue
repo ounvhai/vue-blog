@@ -223,6 +223,7 @@ export default class Comments extends mixins(UserTrace){
     //contentID发生变时更新评论列表
     @Watch('contentID')
     handleContentIDChange():void{
+        console.log('comments，路由变成的时候根据路由请求新评论。此时，user有数值？',latestUser());
         // 请求新的评论
         this.requestGetComments()
             .then(({data:{Data}})=>{
@@ -424,6 +425,7 @@ export default class Comments extends mixins(UserTrace){
             url:FETCH,
             params:{
                 contentID:this.contentID,
+                userID:this.user.ID,
             }
         })
     }
@@ -431,8 +433,11 @@ export default class Comments extends mixins(UserTrace){
     requestAlterUser(user:User):Promise<any>{
         return (this.$axios as AxiosInstance)({
             url:UPDATE_USER,
-            method:'get',
-            params:user,
+            method:'post',
+            data:{
+                viewer:user,
+                userID:this.user.ID,
+            },
         })
     }
     // 清空输入的评论

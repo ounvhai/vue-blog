@@ -1,6 +1,6 @@
 <template>
     <div class="overview">
-        <div class="name my-4 h4 text-center">Kirds</div>
+        <div class="name my-4 h4 text-center">Ling</div>
         <ul class="list" style="padding:0">
             <li class="mr-1">
                 <small class="d-inline">熟悉<span class="underline text-info">JavaScript</span>，理解<span class="underline text-info">闭包，作用域</span>。了解JavaScript执行过程中的<span class="underline  text-info">堆栈操作</span>，以及<span class="underline text-info">宏任务微任务的执行时机</span></small>

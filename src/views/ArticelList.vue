@@ -44,6 +44,7 @@ import {GET_ARTICEL_PAGE} from '../utils/url';
 import { AxiosInstance } from 'axios';
 //方法
 import {innerHeight, scrollToTop,throttle} from '../utils/utils';
+import {latestUser } from '../utils/userMgr/index';
 //第一页的页码
 const UNSET_PAGE:number=0;
 //每页加载的个数n 
@@ -150,6 +151,7 @@ export default class ArticelList extends Vue{
                 pageSize:PAGE_SIZE,
                 pageNumber:nextPage,
                 tagID:this.tagID,//有可能是undefined
+                userID:latestUser().ID,
             }
         })
     }

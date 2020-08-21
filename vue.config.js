@@ -1,7 +1,7 @@
 var path=require('path');
 const { resolve } = require('path');
 module.exports={
-    lintOnSave:true,
+    lintOnSave:false,
     chainWebpack:(config)=>{
         config.resolve.alias
             .set('@com',resolve('./src/components'))
@@ -10,5 +10,14 @@ module.exports={
             .set("@util",resolve("./src/utils"))
             .set("@style",resolve("./src/style"))
             .set("@mixins",resolve('./src/mixins'))
+        
+    },
+    configureWebpack:config=>{
+        config.plugins.forEach((item,i)=>{
+            if(item.tsconfig){
+                config.plugins.splice(i,1);
+            }
+        })
     }
+    
 }

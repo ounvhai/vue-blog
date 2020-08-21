@@ -127,6 +127,7 @@ import { Route } from 'vue-router';
 import UserTrace from '@mixins/UserTrace.vue';
 //方法
 import {hasCookie ,scrollToTop} from '../../utils/utils';
+import {latestUser } from '../../utils/userMgr/index';
 import moment from 'moment';
 //常量
 import {USER_ID_COOKIE_NAME, UNSET_NUMBER}  from '../../utils/utils'  
@@ -161,7 +162,7 @@ export default class Articel extends Mixins(UserTrace){
     //不能点赞toggleOpinion
     isLoading:boolean=false;
     
-    isTogglingOpinion:boolean=false;
+    isTogglingOpinion:boolean=false; 
     //继承UserTrace，不绑定用户更新后调用的钩子
     isWatchUserUpdated:boolean=false;
     // 请求显示的信息
@@ -218,6 +219,7 @@ export default class Articel extends Mixins(UserTrace){
             url:TOGGLR_OPNION,
             params:{
                 contentID:this.contentID,
+                userID:latestUser().ID,
             }
         }).then(({data:{Data}})=>{
             let {UserOponion:latestState}=Data;
@@ -250,6 +252,7 @@ export default class Articel extends Mixins(UserTrace){
             url:GET_ARTICEL_INFO,
             params:{
                 articelID:this.articelID,
+                userID:latestUser().ID,
             }
         })
     }
