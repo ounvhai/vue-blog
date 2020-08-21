@@ -16,7 +16,7 @@
                <small> 简单使用<span class="underline text-info">git</span>，命令行下查看状态，分支，提交，回退，</small>
             </li>
             <li>
-                <small class="underline text-info"><a href="javascript:void">源码(链接)</a></small>
+                <small class="underline text-info"><a href="https://github.com/ounvhai/personal-blog">源码(链接)</a></small>
             </li>
         </ul>
     </div>

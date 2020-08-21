@@ -68,7 +68,7 @@ export default class Comment extends Vue {
     }
 }
 </script>
-<template> 
+<template>  
     <div class="comment ">
         <div class="comment-main ">
             <!-- 头像 -->
