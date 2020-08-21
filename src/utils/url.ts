@@ -29,7 +29,6 @@ export const GET_ARTICEL_PAGE:string=ARTICEL_PATH+'GetPage';
 
 //点赞控制器
 const OPINION_PATH="Opinion/";
-
 //对点赞状态取反
 export const TOGGLE:string=OPINION_PATH+"Toggle";
 

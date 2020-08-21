@@ -1,5 +1,6 @@
 <template>
     <ul class="chapters position-relative">
+
         <li class="chapter text-center position-relative" :class="{active:selectedIndex===index}" @click="handleClickItem(index)" v-for='(item,index) in chapterItems' :key="index">
             <span>{{item.title}}</span>
         </li>
@@ -10,6 +11,9 @@
     @import '../../style/variable';
     @import '../../style/mixin/utils';
     .chapters{
+        &::before{
+            content: '章节:';
+        }
         padding: 0;
         // 变量
         // 过度时间
@@ -42,30 +46,26 @@
             padding:.5rem 0;//bootstrap的py-2优先级太高了
             // 下划线
             &::after{
-                // 下划线颜色
-                content: '';
-                display: block;
-                box-sizing: content-box;
-                height: 1px;
-                margin-top: -1px;
-                padding-bottom: 0.5rem;
-                box-shadow:0 0.38px 0 0 $unselectd-color;
-                // 宽度
-                width: $unselected-width;
-                // 居中
-                position: relative;
-                left:(100%-$unselected-width)/2;
-                //过度效果
-                transition: all $transition-time ease-out; 
+                // 召唤实体
+                content:'';
+                display:block;
+                //一根线
+                height: .6px;
+                background: $unselectd-color;
+                width: 22%;
+                
+                // 位置
+                margin: .18rem auto;
+
+                //过度
+                transition: all $transition-time ease-out;
             }
         }
         .active{
             &[class*='chapter']{
-                // 下划线颜色变深，宽度变宽
                 &::after{
-                    width:$selected-width ;
-                    left:(100%-$selected-width)/2;
-                    box-shadow:0 0.38px 0 0 $selected-color;
+                    width: 50%;
+                    // background: $selected-color;
                 }
             }
         }
@@ -76,9 +76,9 @@ interface ChapterItem{
     title:string,
     aheadTo:{name:string,params?:any,query?:any},
 }
-import {UNSET_NUMBER} from '../../utils/utils';
+import {UNSET_NUMBER ,dispatch} from '../../utils/utils';
 import {Vue ,Component, Watch } from 'vue-property-decorator';
-import { RawLocation } from 'vue-router';
+import { RawLocation, Route } from 'vue-router';
 import {INTRODUCTION_ARTICRL_ID, INTRODUCTION_CONTENT_ID} from '../../router'
 @Component
 export default class Chapter extends Vue{
@@ -99,24 +99,43 @@ export default class Chapter extends Vue{
         {
             title:'留言板',
             aheadTo:{name:'comments'},
-        },{
+        },
+        /* {
             title:'测试',
             aheadTo:{name:'test'}
-        }
+        } */
     ];
     //当前被选中的Chapter 的 Index
-    selectedIndex:number=UNSET_NUMBER;
-    created(){
-        const FIRST_ITEM_INDEX=0;
-        this.selectedIndex=FIRST_ITEM_INDEX;
+    selectedIndex:number=0;
+
+    //路由变化，引起箭头的改变
+    @Watch('$route')
+    handleRouteChange(newRoute:Route,oldRoute:Route):void{
+        switch(newRoute.name){
+            case 'main':
+                this.selectedIndex=1;
+                break;
+            case 'comments':
+                this.selectedIndex=2;
+                break;
+            case 'articel':
+                //不是自我介绍的，就跳到主页，不然跳到个人介绍项
+                if(+newRoute.query.articelID!==INTRODUCTION_ARTICRL_ID)
+                    this.selectedIndex=1
+                else
+                    this.selectedIndex=0;
+                break;
+            default :
+                this.selectedIndex=1;
+        }
     }
-    
+
+
     handleClickItem(index:number):void{
         //修改 selectedIndex 让他到指定地方
-        if(this.selectedIndex!==index)
-            this.selectedIndex=index;
-            //跳转到指定路由
-        this.$router.push(this.chapterItems[this.selectedIndex].aheadTo)
+        this.$router.push(this.chapterItems[index].aheadTo);
+
+        dispatch('handleClickChapterItem',this);
             
     }
     // 箭头的高度样式

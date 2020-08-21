@@ -1,12 +1,15 @@
 <template>
-    <div  class="footer text-center">
-        <span>备案号咯</span>
+    <div  class="footer  my-5 text-center">
+        <a class="beian" href="http://www.miit.gov.cn/">粤ICP备18120757号</a>
     </div>
 </template>
 <style lang="scss">
     .footer{
-        span{
-
+        .beian{
+            color:black;
+            &:hover{
+                color:adjust-color($color: black, $lightness: 30%)
+            }
         }
     }
 </style>

@@ -41,6 +41,13 @@ export interface CommentViewModel{
     IsAppreciated:boolean;
     //评论是否被审核过
     IsInspected:boolean;
-    
+    //评论者是否admin
+    IsObserverAdmin:boolean,
+    //被回复的是不是admin
+    IsTheResponsedAdmin:boolean,
 
 }
+
+// export interface ErrHint{
+//     [attr:string]:string,
+// }

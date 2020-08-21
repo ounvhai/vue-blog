@@ -7,7 +7,8 @@ import {getEventBus } from './utils/eventBus';
 import Axios from './utils/http';
 //更新用户信息
 import {updateUser } from './utils/userMgr/index';
-
+//时间
+import moment from 'moment';
 
 // 主题
 import "@style/main.scss";
@@ -24,7 +25,14 @@ Vue.prototype.$axios=Axios;
 //update Global User
 Vue.prototype.$mergeUser=updateUser;
 
+
+
 new Vue({
   router,
   render: (h) => h(App),
 }).$mount('#app');
+
+//文章发布时间
+Vue.filter('public_articel_time',function(date:string):string{
+  return moment(date).format("YYYY - MM - DD")
+})

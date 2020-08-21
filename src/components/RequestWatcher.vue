@@ -36,8 +36,8 @@ export default class RequestWatcher extends Vue{
     @Watch('request')
     handleRequestChange(newValue:Promise<any>){
         //不是promise实例就不
-        if((newValue instanceof Promise)===false) return ;
         this.resetState();
+        if((newValue instanceof Promise)===false) return ;
         this.state.isLoading=true;
         // 观察Promise的各个状态并切换hint
         (this.request as Promise<any>)

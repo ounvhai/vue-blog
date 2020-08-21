@@ -2,10 +2,7 @@
     @import '../../style/mixin/utils';
     
     .articel{
-        .info{
-            //点赞被选中的时候变成红色
-            .info-set{color: red;}
-        }
+        
         .content{
             min-height: 8rem;
             line-height: 1.8rem;
@@ -57,9 +54,9 @@
     <div class="articel">
         <h2 class="mt-4">{{title}}</h2>
         <div class=" info mt-3 ">
-            <label :class="{'info-set':isGratful}" class="mr-3"  @click="handleToggleOpinion">
+            <label  class="mr-3"  @click="handleToggleOpinion">
                 <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-suit-heart-fill " fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M4 1c2.21 0 4 1.755 4 3.92C8 2.755 9.79 1 12 1s4 1.755 4 3.92c0 3.263-3.234 4.414-7.608 9.608a.513.513 0 0 1-.784 0C3.234 9.334 0 8.183 0 4.92 0 2.755 1.79 1 4 1z"/>
+                    <path :class="{'text-danger':isGratful}" d="M4 1c2.21 0 4 1.755 4 3.92C8 2.755 9.79 1 12 1s4 1.755 4 3.92c0 3.263-3.234 4.414-7.608 9.608a.513.513 0 0 1-.784 0C3.234 9.334 0 8.183 0 4.92 0 2.755 1.79 1 4 1z"/>
                 </svg>
                 
                 {{articel.GratfulCount}}
@@ -87,7 +84,7 @@
                     <path fill-rule="evenodd" d="M11.646 14.146a.5.5 0 0 1 .708 0l1 1a.5.5 0 0 1-.708.708l-1-1a.5.5 0 0 1 0-.708zm-7.292 0a.5.5 0 0 0-.708 0l-1 1a.5.5 0 0 0 .708.708l1-1a.5.5 0 0 0 0-.708zM5.5.5A.5.5 0 0 1 6 0h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1-.5-.5z"/>
                     <path d="M7 1h2v2H7V1z"/>
                 </svg>
-                {{articel.Time}}
+                {{articel.Time | public_articel_time}}
             </label>
         </div>
         <!-- 下划线 --> 
@@ -96,7 +93,7 @@
             <!-- @after-enter='handleContextFadeIn' -->
             <transition name="loading-switching"  mode="out-in">
                 <p v-if='isLoading===false' class="articel-text">{{context}}</p>
-                <loading v-else class="articel-loading"></loading>
+                <loading v-else class="articel-loading my-4"></loading>
             </transition>
         </div>
         <div class="pages d-flex my-5 mx-3 px-md-5">
@@ -130,6 +127,7 @@ import { Route } from 'vue-router';
 import UserTrace from '@mixins/UserTrace.vue';
 //方法
 import {hasCookie ,scrollToTop} from '../../utils/utils';
+import moment from 'moment';
 //常量
 import {USER_ID_COOKIE_NAME, UNSET_NUMBER}  from '../../utils/utils'  
 
@@ -142,6 +140,8 @@ interface Info{
     components:{ 
         cmts:Comments,
         Loading,
+    },
+    filters:{ 
     }
 })
 export default class Articel extends Mixins(UserTrace){
@@ -152,12 +152,16 @@ export default class Articel extends Mixins(UserTrace){
     articel:VM={} as VM;
     // 页码
     pages:Page[]=[];  
-
+    //是否初始化数据了
+    //因为有2个地方可能会触发更新，但是实际只初始化一次created 和 onUserInited 中
+    //所以初始化过后用这个标识，只初始化一次
     isInited:boolean=false;
-    //限制点赞，请求文章的时候不能点赞
+    //请求的时候为true
+    //true的时候会显示加载图标
+    //不能点赞toggleOpinion
     isLoading:boolean=false;
-    // isLoading:boolean=true;
-
+    
+    isTogglingOpinion:boolean=false;
     //继承UserTrace，不绑定用户更新后调用的钩子
     isWatchUserUpdated:boolean=false;
     // 请求显示的信息
@@ -206,17 +210,17 @@ export default class Articel extends Mixins(UserTrace){
         scrollToTop(document.documentElement,0);
     } */
     //点击点赞按钮
-    handleToggleOpinion():void{
-        if(this.isLoading) return ;
-        (this.$axios as AxiosInstance)({
+    async handleToggleOpinion():Promise<any>{
+        if(this.isLoading || this.isTogglingOpinion) return ;
+        this.isTogglingOpinion=true;
+        await (this.$axios as AxiosInstance)({
             method:'get',
             url:TOGGLR_OPNION,
             params:{
                 contentID:this.contentID,
             }
         }).then(({data:{Data}})=>{
-            console.log('改变前，值是:',this.articel.UserOpinion);
-            var latestState=Data as OpinionState;
+            let {UserOponion:latestState}=Data;
             switch(latestState){
                 case OpinionState.Gratful:
                     this.articel.GratfulCount++;
@@ -227,6 +231,7 @@ export default class Articel extends Mixins(UserTrace){
             }
             this.articel.UserOpinion=latestState;
         })
+        this.isTogglingOpinion=false;
     }
     // 发起请求，获得并处理数据已更新页面信息
     async updateInfo():Promise<any>{

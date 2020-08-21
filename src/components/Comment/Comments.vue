@@ -6,14 +6,14 @@
             <avatar class="comments-write-avatar mr-3" name='' :portrait='observerPortrait'></avatar>
             <div class="media-body">
                 <vf class="row" :info='validInfo' @on-validation-end='handleVlidated'>
-                    <vi class="form-group col-md-6 col-12" :isValid='validState.name' errHint='请先设置昵称'>
+                    <vi class="form-group col-md-6 col-12"  attr='name'>
                         <input   v-model="validInfo.name.value"  class="form-control form-control-sm" :placeholder="namePlaceHolder" type="text"/>
                     </vi>
-                    <vi class="form-group col-md-6 col-12"  :isValid='validState.contact' errHint='不填/填邮箱/填个人网站'>
-                        <input v-model="validInfo.contact.value"  :placeholder="contactPlaceholder"  type="text" class="form-control form-control-sm" />
+                    <vi class="form-group col-md-6 col-12"  attr='contact'>
+                        <input   v-model="validInfo.contact.value"  :placeholder="contactPlaceholder"  type="text" class="form-control form-control-sm" />
                     </vi>
-                    <vi class="form-group col-12" :isValid='validState.comment' errHint='提交评论不为空'>
-                        <textarea :placeholder="placeholder"   v-model="validInfo.comment.value"  rows="3" class="form-control form-control-sm"></textarea>
+                    <vi class="form-group col-12"  attr='comment'>
+                        <textarea  :placeholder="placeholder"   v-model="validInfo.comment.value"  rows="3" class="form-control form-control-sm"></textarea>
                     </vi>
                 </vf>
             </div>
@@ -29,7 +29,7 @@
                     评论失败~
                 </template>
                 <template #loading>
-                    请求中...
+                    尝试中....
                 </template>
             </Request-Watcher>
             
@@ -40,13 +40,13 @@
         </div>
         <!-- 评论列表 -->
         <transition name="loading-switching" mode="out-in">
-            <loading v-if="isLoading" class="d-inline text-center"></loading>
+            <loading v-if="isLoading" class="comments-loading  my-4  position-relative text-center"></loading>
             <ul v-else class="main-list mt-4">
                 <li class="mb-5 pb-3" v-for='(h,index) in commentHierarchies'  :key="index">
-                    <cmt class="main-com " @click.native="handleClickComment(h.comment.CommentID,h.comment.ObserverID,h.comment.ObserverName)" :user='user' :comment='h.comment'>
+                    <cmt class="main-com text-center" @on-click-opinion='handleToggleOpinion' @click.native="handleClickComment(h.comment,false)" :user='user' :comment='h.comment'>
                         <ul class="sub-list " v-if='h.subComments&&h.subComments.length>0'>
                             <li v-for="(subcomment,index) in h.subComments" :key="index">
-                                <cmt class="sub-com"  @click.native="handleClickComment(h.comment.CommentID,subcomment.ObserverID,subcomment.ObserverName)" :user='user' :comment='subcomment'></cmt>
+                                <cmt class="sub-com" @on-click-opinion='handleToggleOpinion'  @click.native="handleClickComment(subcomment,true)" :user='user' :comment='subcomment'></cmt>
                             </li>
                         </ul>
                     </cmt>
@@ -63,16 +63,19 @@
         .comments-write-avatar{
             width:3rem;
         }
+        .comments-loading{
+            // 居中
+            left:50%;
+            transform: translateX(-50%);
+        }
         .main-list{
             .main-com{
-                & *{
-                    font-size: 1.1rem;
-                }
+                font-size: 1rem;
+                margin-top: 7rem;
                 .sub-list{
+                    padding: 0;
                     .sub-com{
-                        & * {
-                            font-size: 0.8rem;
-                        }
+                        font-size: 0.7rem;
                     }
                 }
             }
@@ -95,8 +98,9 @@ import UserTrace from '@mixins/UserTrace.vue';
 // 类型
 import { AxiosInstance } from 'axios';
 import {ValidInfo ,User ,CommentViewModel as VM,SentComment as sentCMT} from '../../types/index'
+import {OpinionState} from '../../utils/varia';
 // url,常量
-import {UPLOAD_COMMENT as SUBMIT,GET_COMMENTS as FETCH,UPDATE_USER} from '../../utils/url';
+import {UPLOAD_COMMENT as SUBMIT,GET_COMMENTS as FETCH,UPDATE_USER ,TOGGLE as TOGGLE_OPINION} from '../../utils/url';
 import Footer from '@/components/Footer.vue';
 import { UNSER_VIEREW_NAME } from '@/utils/utils';
 //方法
@@ -111,7 +115,7 @@ interface CommentHierarchy{
 //评论上下文【要被提交的可修改信息
 interface InputingComment{
     //被回复的用户的ID
-    responded:{Name?:string,ID?:number},
+    responded:{Name?:string,ID?:number,isAdmin?:boolean},
     // 父评论的ComentID
     superiorCommentID?:number,
     
@@ -119,12 +123,6 @@ interface InputingComment{
 interface ValidDump{
     [attr:string]:ValidInfo,
 }
-/* 
-
-
-                        new comment
-*/
-
 
 
 @Component({
@@ -162,48 +160,62 @@ export default class Comments extends mixins(UserTrace){
     validInfo:ValidDump={
         name:{
             attr:'name',
-            validator:(value:string)=>{
+            validator:function(value:string):Promise<any>{
                 let regex:RegExp=/^[^\f\n\r]{0,6}$/;
                 // 既没有设置过用户名又没有写过任何字
-                if(!latestUser().Name&&!value.trim()) return false;
-                return regex.test(value)
+                if(!latestUser().Name&&!value.trim()) { 
+                    return Promise.reject(`请先填写用户名 O u O`);
+                }
+                if(regex.test(value)){ 
+                    return Promise.resolve();
+                }
+                else{ 
+                    return Promise.reject('0 < 用户名长度 < = 6')
+                } 
             },
             value:'',
         },
         contact:{
             attr:'contact',
             //联系方式要么不填，要么填邮箱或者网址
-            validator:(value:string)=>{
+            validator:(value:string):Promise<any>=>{
                 let regexs:RegExp[]=[
                     /^$/,//空串
                     /^(\S+:\/\/)?\w+@\w+\.\w+(\b|\/)$/, //邮箱
                     /(\S+:\/\/)?(\S+\.){2,}\S+/, //网址
                 ]
                 for(let i=0;i<regexs.length;i++){
-                    if(regexs[i].test(value))
-                        return true;
+                    if(regexs[i].test(value.trim())){
+                        return Promise.resolve();//只要匹配到合适的条件就Ok
+                    }
                 }
-                return false;
+                return Promise.reject('不填/邮箱/网址 格式');
             },
             value:''
         },
         comment:{
             attr:'comment',
             // 输入评论不是空串就好
-            validator:value=>/\S+/.test(value),
+            validator:(value:string):Promise<any>=>{
+                let regexp=/[^\f\r\n]+/;
+                return regexp.test(value)?Promise.resolve():Promise.reject('请先填写评论')
+            },
             value:'',
         }
     }
-    validState:any={
-        name:true,
-        contact:true,
-        comment:true,
-    }
-    
+    //是否所有的输入都通过验证了？
+    //由验证后触发的回调handleVlidated（） 修改
+    isAllValid:boolean=false; 
     //是否在请求中
     isLoading:boolean=false;
+    //Opinion是否正在请求取反
+    isTogglingOpinion:boolean=false;
     // 请求中的promise
     request:Promise<any>|null=null;
+    //设定rquest显示时间的timer
+    requestTimer:number=-1; 
+
+
 
     //评论上传成功后被调用
     @Emit('on-comment-uploaded')
@@ -211,18 +223,17 @@ export default class Comments extends mixins(UserTrace){
     //contentID发生变时更新评论列表
     @Watch('contentID')
     handleContentIDChange():void{
+        // 请求新的评论
         this.requestGetComments()
             .then(({data:{Data}})=>{
                 this.comments=Data;
             })
-    }
-    //路由更新的时候
-    @Watch('$route')
-    handleRouteUpdate():void{
         // 清除已经输入的文字信息
         this.resetInputingComment();
         //清空输入的用户信息
         this.resetInputingUser();
+        this.isLoading=false;
+        this.isAllValid=false;
     }
     created(){ 
         // 初始化user信息
@@ -249,6 +260,7 @@ export default class Comments extends mixins(UserTrace){
             })
     }
     // 继承自UserTrace（mixins），每当用户信息更新时触发。
+    //如果评论列表中有自己评论的信息，就修改信息以影响显示
     onUserUpdate(latestUser:User):void{
         // 更新显示的用户名
         this.user=latestUser; 
@@ -261,6 +273,11 @@ export default class Comments extends mixins(UserTrace){
             }
         })
     }
+    //每次验证结束后
+    // 使用此回调记录数据
+    handleVlidated(attr:string[]):void{
+        this.isAllValid=attr.length<=0;
+    }
     // 点击提交按钮
     //提交,接受新评论
     //有输入用户信息的话提交下用户信息
@@ -270,11 +287,28 @@ export default class Comments extends mixins(UserTrace){
 
         // 正当有请求中则不让再次发起请求
         if(this.isLoading) return ;
-        //有验证不通过的话不提交
-        if(Object.keys(this.validState).some(name=>this.validState[name]===false)) {
-            this.request=Promise.reject('请先完成验证');
+
+        //有输入过任何内容才能进行下一步
+        //再2秒内显示错误提示
+        if(!!this.validInfo.comment.value===false) {
+            clearTimeout(this.requestTimer)
+            this.requestTimer=setTimeout(()=>{
+                this.request=null;
+            },2000);
+            this.request=Promise.reject('请先输入评论内容')
             return ;
         }
+        //验证没过的不给提交
+        //在2秒内显示错误提示
+        if(this.isAllValid===false) {
+            clearTimeout(this.requestTimer);
+            this.requestTimer=setTimeout(() => {
+                this.request=null;
+            }, 2000);
+            this.request=Promise.reject('请先完成验证')
+            return ;
+        }
+        
 
         /* 提交请求 */
 
@@ -283,26 +317,10 @@ export default class Comments extends mixins(UserTrace){
         let curCommentState:InputingComment=Object.assign({},this.commentState);
         //发起提交评论请求。如果有输入用户信息，一起提交用户请求
         let requests:Promise<any>[]=[
-            this.requestUploadComment(),//上传评论的请求
-        ];
-        if(curInputing.contact.value||curInputing.name.value)
-            requests.push(this.requestAlterUser({
-                Name:curInputing.name.value||undefined,//预防空字符串
-                Contact:curInputing.contact.value||undefined,
-            } as User))
-        this.request=Promise.allSettled(requests);
-        await this.request
-            //处理接受到的数据
-            .then(([com_reply,user_reply])=>{
-                if(user_reply&&user_reply.status==="fulfilled"){
-                    let newUser:User=<User>{};
-                    curInputing.name.value&&(()=>{newUser.Name=curInputing.name.value})();
-                    curInputing.contact.value&&(()=>{newUser.Contact=curInputing.contact.value})();
-                    //修改全局用户信息
-                    this.$mergeUser(newUser);
-                }
-                if(com_reply.status==='fulfilled'){
-                    let {value:{data:{Data:{CommentID,ContentID}}}} = com_reply;
+            //上传评论的请求
+            this.requestUploadComment()
+                .then(({data})=>{
+                    let {Data:{CommentID,ContentID}} = data;
                     let newComment:VM={//提交成功后的新评论的数据模型
                             ContentID,
                             CommentID,
@@ -317,44 +335,79 @@ export default class Comments extends mixins(UserTrace){
                             SuperiorCommentID:curCommentState.superiorCommentID,
                             ResposedViewerName:curCommentState.responded.Name||UNSER_VIEREW_NAME,
                             ResponsedViewerID:curCommentState.responded.ID||UNSER_NUMBER,
+                            IsObserverAdmin:this.user.IsAmdin,//自己提交的评论
+                            IsTheResponsedAdmin:false
                         }
                     //添加新评论
                     this.comments.push(newComment);
-                }
-            })
-            //清除数据
-            .finally(()=>{
-                this.resetInputingComment();
-                this.resetInputingUser();//注册下一个then
-            })
-            .then(()=>{
-                // this.handleVlidated(根据验证结果修改bool值以控制是否显示错误提示文字）执行后才执行此微任务
-                //取消验证状态
-                Object.keys(this.validState).forEach(name=>{
-                    this.validState[name]=true;
-                })
-            })
+                }),
+        ];
+        //有提供任何被验证过的用户信息的话发起请求修改全局用户信息
+        if(curInputing.contact.value||curInputing.name.value)
+            requests.push(
+                this.requestAlterUser({
+                    Name:curInputing.name.value||undefined,//预防空字符串
+                    Contact:curInputing.contact.value||undefined,
+                } as User)
+                    .then(()=>{
+                        // 根据提交成功的输入值，修改全局用户信息
+                        let newUser:User=<User>{};
+                        if(curInputing.name.value)
+                            newUser.Name=curInputing.name.value;
+                        if(curInputing.contact.value)
+                            newUser.Contact=curInputing.contact.value;
+                        this.$mergeUser(newUser);
+                    })
+            )
+        //设置request，准备根据请求的promise状态输出对应提示
+        this.request=Promise.all(requests);
+        clearTimeout(this.requestTimer);
+        await this.request;
+        // 清除输入文字。、
+        this.resetInputingComment();
+        this.resetInputingUser();
+        //request出现结果显示提示后2秒后消失提示
+        this.requestTimer=setTimeout(() => {
+            this.request=null;
+        }, 2000);
+        // 重置状态
         this.isLoading=false;
     }
-    // 点击评论触发事件
-    //参数:父级评论ID,被回复的人的ID,被回复的人的名字
-    //作用:设置输入评论框上,写回复谁谁谁
-    handleClickComment(superiorCommentID?:number,respondedUserID?:number,respondedUserName?:string){
-        this.commentState.superiorCommentID=superiorCommentID;
-        this.commentState.responded={
-            Name:respondedUserName,
-            ID:respondedUserID,
-        }
+    //对于某条comment点击了Opinion
+    //对某个content取反
+    async handleToggleOpinion(contentID:number):Promise<any>{
+        if(this.isTogglingOpinion) return ;//防止重复提交
+        this.isTogglingOpinion=true;
+        await (this.$axios as AxiosInstance)({
+            method:'get',
+            url:TOGGLE_OPINION,
+            params:{
+                contentID,
+            }
+        }).then(({data:{Data:{ContentID,UserOponion}}})=>{//传送回的是OpinionVM的模型
+            let affectedComment:VM=this.comments.filter(el=>el.ContentID===ContentID)[0];
+            switch(UserOponion){
+                case OpinionState.Unset:
+                    affectedComment.IsAppreciated=false;
+                    affectedComment.Approval--;
+                    break;
+                case OpinionState.Gratful:
+                    affectedComment.IsAppreciated=true;
+                    affectedComment.Approval++;
+                    break;
+            }
+        })
+        this.isTogglingOpinion=false;
     }
-    //验证结束后处理验证结果
-    handleVlidated(attr:string[]):void{
-        //先把所有结果设置为true，单独挑出验证失败的设置验证结果为false
-        Object.keys(this.validState).forEach(name=>{
-            this.validState[name]=true;
-        })
-        attr.forEach(name=>{
-            this.validState[name]=false;
-        })
+    // 点击评论触发事件
+    //记录要回复的人是谁
+    handleClickComment(commentVM:VM,isSubComment:boolean){
+        this.commentState.responded={
+            Name:commentVM.ObserverName,
+            ID:commentVM.ObserverID,
+            isAdmin:commentVM.IsObserverAdmin,
+        }
+        this.commentState.superiorCommentID=isSubComment?commentVM.SuperiorCommentID:commentVM.CommentID;
     }
     // 发起请求提交评论
     requestUploadComment():Promise<any>{

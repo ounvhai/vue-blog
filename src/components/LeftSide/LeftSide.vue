@@ -5,14 +5,14 @@
                 <div  v-show="isSeen" @click="handleClickMask" class="mask position-fixed  d-md-none   bg-dark"></div>
             </transition>
             <transition name="content-fade" @after-enter='handleOpen' @after-leave='handleClosed'>
-                <div v-show="isSeen" class="content d-flex flex-column justify-content-start position-fixed col-md-3 col-8 ">
+                <div v-show="isSeen" class="content   flex-column justify-content-start position-fixed col-md-3 col-8 ">
                     <img 
                         src="../../assets/pipi.gif" 
                         alt="网站logo" 
-                        class="img w-25 position-relative "
+                        class="img w-25 mt-4 position-relative "
                     />
                     <overview class=''></overview>
-                     <chapter />
+                     <chapter class="mt-3"></chapter>
                     <tag @on-click-tag='handleClickTag' :selectedTagID='tagID'></tag>
                 </div>
             </transition>
@@ -34,10 +34,12 @@
             display: block;
         }
         .content{
+            display: flex;//bootstrap优先级d-flex太高了。
             &>*{
                 flex:0 1 auto;
             
             }
+            
             z-index: 2;
             // 位置
             top: 0;
@@ -46,7 +48,7 @@
             transform: translateX(0%);
             transform-origin: 50%;
             // 右边阴影
-            box-shadow: 1px 0 3px 0 var(--my-web-color);
+            box-shadow: 1px 0 5px 0 #{adjust-color(#eee,$lightness:-30%)};
 
             overflow: hidden;
 
@@ -109,7 +111,6 @@ import Overview from './Overview.vue';
 import Tag from './Tags.vue';
 @Component({
     components:{
-        // Assistant,
         Chapter,
         Overview,
         Tag,

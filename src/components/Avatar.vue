@@ -13,6 +13,9 @@
         &:hover{
             cursor: pointer;
         }
+        img{
+            border-radius: 50%;
+        }
         .avatar-name{
             // 这里用的EM哒
             font-size: 1em;
@@ -49,7 +52,6 @@ export default class Avatar extends Vue{
         // 每次图片加载好后，图片以宽为准成正方形
         var img:HTMLElement=e.target as HTMLElement;
         img.style.height=img.getBoundingClientRect().width+'px';
-        console.log('avatar On Loaded');
     }
     get isUseDefaultPortrait():boolean{
         return !!this.portrait;

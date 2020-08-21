@@ -9,6 +9,8 @@ export interface User{
     Assistant:number,
     //头像
     Portrait:string,
+
+    IsAmdin:boolean,
 }
 
 export interface AssistantVM{

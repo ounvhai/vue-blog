@@ -2,13 +2,22 @@
     <div  class="app container-fluid">
         <div class="app-content row h-100">
             <!-- 侧边栏 -->
-            <left-side class="app-content-left-side" :isSeen='isSeen' @on-open='handleLeftSideFadeEnd' @on-closed='handleLeftSideFadeEnd' @on-click-mask='handleClickMask'  />
+            <left-side 
+                class="app-content-left-side" 
+                :isSeen='isShowLeftSide' 
+                @on-open='handleLeftSideFadeEnd'
+                @on-closed='handleLeftSideFadeEnd' 
+                @on-click-mask='handleClickMask' 
+             />
             <!-- 
                 触发显示LeftSide
                 只在md以下显示
              -->
              <transition name="left-side-trigger">
-                <div @click="isSeen=true" v-show="isForShowLeftSideOpen" class="trigger position-fixed"></div>
+                <!-- <div @click="isSeen=true" v-show="isForShowLeftSideOpen" class="trigger position-fixed"></div> -->
+                <svg width='1em' height='1em' @click="isSeen=true" v-show="isForShowLeftSideOpen"  viewBox="0 0 16 16" class=" trigger position-fixed bi bi-list" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M2.5 11.5A.5.5 0 0 1 3 11h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 3h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+                </svg>
              </transition>
             <!-- 内容 -->
             <div class="main position-relative col-12 col-md-9 offset-md-3">
@@ -19,7 +28,7 @@
             </div>
         </div>
     </div>
-</template>
+</template> 
 <style lang="scss">
     @keyframes trigger-fade{
         0%{
@@ -40,12 +49,7 @@
             .trigger{
                 left: 0;
                 top: 1rem;
-
-                width: 1rem;
-                height: 1rem;
-                background-color: black;
-
-                z-index:3
+                z-index:3;
             }
             z-index: 2;
             .main{
@@ -91,8 +95,6 @@ export default class App extends Vue{
             let serverRespond:ServerRespond=data;
             this.$mergeUser(serverRespond.Data);
         })
-        //跳转去自我介绍
-        // this.$router.push({name:'articel'})
     }
 
     mounted():void{
@@ -109,9 +111,14 @@ export default class App extends Vue{
         this.isSeen=false;
         this.isLeftSideFading=true;
     }
-    handleClickTrigger():void{
-        this.isSeen=true;
-        this.isLeftSideFading=true;
+    //由chapter组件通过utils.ts中dispatch递归$parent来调用此方法
+    //关闭遮罩
+    handleClickChapterItem(){
+        this.isSeen=false;
+    }
+    get isShowLeftSide():boolean{
+        if(this.isThePortable===false)  return true;
+        return this.isSeen;
     }
     // 当前是否移动设备
     get isThePortable():boolean{

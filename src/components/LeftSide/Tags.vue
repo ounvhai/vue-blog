@@ -1,8 +1,6 @@
 <template>
     <div class="tags">
-        <span>
-            标签...
-        </span>
+        
         <ul v-if='tags.length>0' class="d-flex flex-wrap tag-collection py-2">
             <li @click="handleClickTag(t.ID)" v-for='(t,index) in tags' :key="index" :class="{'active':activeIndex===index}" class="tag-item ml-1 mt-2">
                 <small class="tag-name  d-inline-block px-2 py-1 ">{{t.Name}}</small>
@@ -13,6 +11,9 @@
 </template>
 <style lang="scss">
     .tags{
+        &::before{
+            content: '标签...';
+        }
         opacity: 0.8;
         .tag-collection{
             padding-left: unset;
@@ -34,6 +35,8 @@
                     border-radius: 10%;
                     // 底色
                     background: #eee;
+                
+                    transition:all .3s ease-out;
                 }
                 
             }
@@ -53,6 +56,10 @@ import {UNSET_NUMBER}  from '../../utils/utils';
 import {TagVM} from '../../types/index';
 import { AxiosInstance } from 'axios';
 
+// 方法
+import {dispatch } from '../../utils/utils';
+
+
 
 @Component({
     components:{
@@ -70,7 +77,10 @@ export default class Tags extends Vue{
 
     //告知父元素点了哪个tagID 
     @Emit('on-click-tag')
-    onClickTag(tagID?:number){}
+    onClickTag(tagID?:number){
+        // 触发某个上级的方法
+        dispatch('handleClickChapterItem',this.$parent);
+    }
     created(){
         //初始化标签数据
         (this.$axios as AxiosInstance)({

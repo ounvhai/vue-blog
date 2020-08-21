@@ -1,25 +1,37 @@
 <template>
 
 <div class="articels">
-    <div>
-        <ul class="articel-list">
+        <transition-group name="articel-in" tag='ul' class="articel-list">
             <li v-for="a in articels" :key="a.ArticelID">
-                <item @click.native="handleClickArticelItem(a)" :articel='a'></item>
+                <item @on-tag-click='handleClickArticelTag' @click.native="handleClickArticelItem(a)" :articel='a'></item>
             </li>
-        </ul>
+        </transition-group>
         <div class="decorate text-center my-5">
             <transition name='loading-switching'>
                 <loading v-show="isLoading"></loading>
             </transition>
-            <h6 class="" v-if="isAllLoaded">- - 木有啦 - - </h6>
+            <h6 class="my-5" v-if="isAllLoaded">- - 木有啦 - - </h6>
             
-            <h6 class=" " v-show='isLoading'>--加载中--</h6>
+            <h6 class="my-5" v-show='isLoading'>--加载中--</h6>
 
         </div>
-        
-    </div>
 </div>
 </template>
+<style lang="scss">
+.articel-list{
+    margin-bottom: 8rem;
+}
+    .articel-in-enter{
+        opacity: 0;
+    }
+    .articel-in-enter-to{
+        opacity:1;
+    }
+    .articel-in-enter-active{
+        transition: all .38s;
+    }
+    
+</style>
 <script lang="ts">
 import {Vue ,Component ,Prop, Watch} from 'vue-property-decorator';
 //类型
@@ -115,6 +127,15 @@ export default class ArticelList extends Vue{
             query:{
                 articelID:articel.ArticelID,
                 contentID:articel.ContentID,
+            }
+        })
+    }
+    // 点击了标签，跳转到特定标签的路由
+    handleClickArticelTag(tagID:number):void{ 
+        this.$router.replace({
+            name:'main',
+            params:{
+                tagID:tagID,
             }
         })
     }

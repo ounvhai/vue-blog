@@ -1,11 +1,11 @@
 <template>
     <div class="valid-item">
         <slot></slot>
-            <state :request='curState'></state>
+        <state :request='curState'></state>
     </div>
 </template>
 <script lang="ts">
-import {Vue ,Component ,Emit ,Prop} from 'vue-property-decorator';
+import {Vue ,Component ,Emit ,Prop ,Watch} from 'vue-property-decorator';
 
 //组件
 import RequestState from '../RequestWatcher.vue';
@@ -16,17 +16,28 @@ import RequestState from '../RequestWatcher.vue';
     },
 })
 export default class ValidInput extends Vue{
-    // 是否通过验证
-    @Prop({required:true,type:Boolean}) isValid!:boolean;
-    //错误提示
-    @Prop({required:true,}) errHint!:string;
-    //成功提示
-    @Prop({required:false,default:''}) successHint!:string;
 
-    get curState():Promise<any>{
-        if(this.isValid)
-            return Promise.resolve(this.successHint);
-        return Promise.reject(this.errHint)
-    }
+    @Prop({required:true}) attr!:string
+    
+    errHint:string|null=null;
+
+    
+     created(){
+         this.$on('on-valid-end',(errs:{[attr:string]:string})=>{ 
+             if(errs[this.attr])
+                this.errHint=errs[this.attr];
+            else
+                this.errHint=null;
+         })
+     }
+     get curState():Promise<any>{
+         if(this.errHint)
+            return Promise.reject(this.errHint)
+        return Promise.resolve();
+     }
+
+
+    
+
 }
 </script>
