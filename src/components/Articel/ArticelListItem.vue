@@ -1,7 +1,7 @@
 <template>
     <div class="articel-list-item mt-4">
         <h3 class="title mb-3">{{Title}}</h3>
-        <p class="context">{{content.repeat(30)}}</p>
+        <p class="context" v-html="content"></p>
         <div class="info float-right ">
             <label class=' mr-3'>
                 <svg width="1em" style="transform:rotateZ(90deg)" height="1em" viewBox="0 0 16 16" class="bi bi-tags " fill="currentColor" xmlns="http://www.w3.org/2000/svg">

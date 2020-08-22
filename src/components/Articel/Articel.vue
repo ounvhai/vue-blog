@@ -150,6 +150,9 @@ export default class Articel extends Mixins(UserTrace){
 
     @Prop({required:true}) articelID!:number;
     @Prop({required:true}) contentID!:number;
+
+    user:User=latestUser();
+
     articel:VM={} as VM;
     // 页码
     pages:Page[]=[];  
@@ -167,10 +170,7 @@ export default class Articel extends Mixins(UserTrace){
     isWatchUserUpdated:boolean=false;
     // 请求显示的信息
     created(){
-        //只要有cookie就可以请求数据
-        //但是可能会执行下面的 onUserInited 回调时候再请求一次
-        // 所以加个isInited 减少无用请求
-        if(hasCookie(USER_ID_COOKIE_NAME)){
+        if(this.user.ID){
             this.updateInfo()
             this.isInited=true;
             scrollToTop(document.documentElement,0);
@@ -181,6 +181,7 @@ export default class Articel extends Mixins(UserTrace){
     // 如果是第一次来会没cookie以请求显示的信息，在这里会有cookie
     onUserInited(latestUser:User):void{
         if(this.isInited===false){
+            this.user=latestUser;
             this.updateInfo();
             this.isInited=true;
         }
@@ -219,7 +220,7 @@ export default class Articel extends Mixins(UserTrace){
             url:TOGGLR_OPNION,
             params:{
                 contentID:this.contentID,
-                userID:latestUser().ID,
+                userID:this.user.ID,
             }
         }).then(({data:{Data}})=>{
             let {UserOponion:latestState}=Data;
@@ -252,7 +253,7 @@ export default class Articel extends Mixins(UserTrace){
             url:GET_ARTICEL_INFO,
             params:{
                 articelID:this.articelID,
-                userID:latestUser().ID,
+                userID:this.user.ID
             }
         })
     }

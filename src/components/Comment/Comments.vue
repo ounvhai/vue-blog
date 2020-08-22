@@ -223,7 +223,6 @@ export default class Comments extends mixins(UserTrace){
     //contentID发生变时更新评论列表
     @Watch('contentID')
     handleContentIDChange():void{
-        console.log('comments，路由变成的时候根据路由请求新评论。此时，user有数值？',latestUser());
         // 请求新的评论
         this.requestGetComments()
             .then(({data:{Data}})=>{
@@ -255,6 +254,7 @@ export default class Comments extends mixins(UserTrace){
     // 继承自UserTrace（mixins）,全局第一次更新用户信息的时候触发
     //因为请求评论需要用到用户ID，所以先等用户信息更新有用户ID再请求
     onUserInited(latestUser:User):void{
+        this.user=latestUser;
         this.requestGetComments()
             .then(({data:{Data}})=>{
                 this.comments=Data; 
