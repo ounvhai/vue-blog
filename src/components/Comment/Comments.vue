@@ -384,6 +384,7 @@ export default class Comments extends mixins(UserTrace){
             url:TOGGLE_OPINION,
             params:{
                 contentID,
+                userID:this.user.ID,
             }
         }).then(({data:{Data:{ContentID,UserOponion}}})=>{//传送回的是OpinionVM的模型
             let affectedComment:VM=this.comments.filter(el=>el.ContentID===ContentID)[0];

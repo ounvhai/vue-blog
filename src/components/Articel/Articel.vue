@@ -181,6 +181,7 @@ export default class Articel extends Mixins(UserTrace){
     // 如果是第一次来会没cookie以请求显示的信息，在这里会有cookie
     onUserInited(latestUser:User):void{
         if(this.isInited===false){
+            this.user=latestUser;//可能初始化的时候获得的latestuser是个空对象
             this.user=latestUser;
             this.updateInfo();
             this.isInited=true;
