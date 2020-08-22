@@ -21,12 +21,6 @@ export default new Router({
         contentID:INTRODUCTION_CONTENT_ID,
       }},
     },
-    // {
-    //   // articel路由
-    //   path:'/',
-    //   name:'tmp',
-    //   redirect:{name:'test'}
-    // },
     {
       path:'/',
       name:'articel',

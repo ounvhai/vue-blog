@@ -92,7 +92,7 @@
         <div class="content position-relative ">
             <!-- @after-enter='handleContextFadeIn' -->
             <transition name="loading-switching"  mode="out-in">
-                <p v-if='isLoading===false' class="articel-text">{{context}}</p>
+                <div v-if='isLoading===false' class="articel-text" v-html="context"></div>
                 <loading v-else class="articel-loading my-4"></loading>
             </transition>
         </div>
