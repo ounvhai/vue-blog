@@ -1,18 +1,79 @@
 <template>
-    <ul class="chapters position-relative">
+    <ul :class="['chapter-'+selectedIndex+'-active']"  class="chapters position-relative">
 
-        <li class="chapter text-center position-relative" :class="{active:selectedIndex===index}" @click="handleClickItem(index)" v-for='(item,index) in chapterItems' :key="index">
+        <li class="chapter text-center position-relative"  @click="handleClickItem(index)" v-for='(item,index) in chapterItems' :key="index">
             <span>{{item.title}}</span>
         </li>
-        <li class="arrow" :style="arrowPosition"></li>
     </ul>
 </template>
 <style lang="scss">
     @import '../../style/variable';
     @import '../../style/mixin/utils';
+    
+
+    // --------------------------------------------------some chapter selected style               start--------------------------
+
+    //有多少个item就设置为几
+    //写少显示不正常，写多了就多余
+    $item-count:3;
+
+    //未选中的chapter的y方向 总 padding
+    $unselected-padding-y:2%;
+    //选中的chapter的y方向 总 padding
+    $selected-padding-y:7%;
+
+
+    @for $index from 0 to $item-count{
+        //箭头去到什么高度
+        //&:::after 是箭头本体
+        .chapters[class*=chapter-#{$index}-active]{
+            $unselected-h:(100%-$selected-padding-y)/$item-count;
+            $selected-h:$unselected-h+$selected-padding-y;
+            // 箭头高度
+            &::after{
+                //被选中的chapter上有几个未选中的chapter
+                $unselected-above-count: $index;
+                top:$unselected-above-count*$unselected-h+$selected-h/2;
+                transform: translateY(-50%);
+            }
+            //chapter 被选中的样式
+            //  下划线的长度
+            //  padding
+            .chapter:nth-child(#{$index+1}){
+                padding:{
+                    top: $selected-padding-y/2;
+                    bottom:$selected-padding-y/2;
+                    background: black;
+                }
+                //下划线本体
+                &::after{
+                    width: 50%;
+                    margin-top: .38rem;
+                }
+            }
+        }
+    }
+
+
+    // --------------------------------------------------some chapter selected style            end--------------------------
+
+
+
+
+
+
+
+
+
+
     .chapters{
+        margin-top: 1.8rem;
         &::before{
             content: '章节:';
+            position: absolute;
+            left: 0;
+            top: 0;
+            transform: translateY(-100%);
         }
         padding: 0;
         // 变量
@@ -24,7 +85,7 @@
         $unselected-width:20%;
         $selected-width:42%;
         // 作为列表的箭头
-        .arrow{
+        &::after{
             // 声明一个长宽为0的块元素
             content:'';
             display: block;
@@ -42,8 +103,18 @@
             // 添加过度
             transition:top $transition-time cubic-bezier(.28,.43,0,1.49);
         }
-        .chapter{ 
-            padding:.5rem 0;//bootstrap的py-2优先级太高了
+        &>.chapter{ 
+            //chapter的y方向padding初始值
+            padding:{
+                top:$unselected-padding-y;
+                bottom:$unselected-padding-y;
+            }
+            //本体跟下划线都有过度，
+            &,&::after{
+                //本体的过度是padding，
+                //下划线的过度是width
+                transition: all $transition-time ease-out;
+            }
             // 下划线
             &::after{
                 // 召唤实体
@@ -55,18 +126,8 @@
                 width: 22%;
                 
                 // 位置
-                margin: .18rem auto;
-
-                //过度
-                transition: all $transition-time ease-out;
-            }
-        }
-        .active{
-            &[class*='chapter']{
-                &::after{
-                    width: 50%;
-                    // background: $selected-color;
-                }
+                margin:.18rem auto;
+                
             }
         }
     }
@@ -106,6 +167,8 @@ export default class Chapter extends Vue{
         } */
     ];
     //当前被选中的Chapter 的 Index
+    //当前选中的chapter，会有一个active的类名
+    //这个属性用来指明active在哪个chapter身上
     selectedIndex:number=0;
 
     //路由变化，引起箭头的改变
