@@ -1,7 +1,9 @@
 <template>
     <div class="articel-list-item mt-4">
         <h3 class="title mb-3">{{Title}}</h3>
-        <p class="context" v-html="content"></p>
+        <div class="context mb-3" >
+            {{content}}
+        </div>
         <div class="info float-right ">
             <label class=' mr-3'>
                 <svg width="1em" style="transform:rotateZ(90deg)" height="1em" viewBox="0 0 16 16" class="bi bi-tags " fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -72,12 +74,17 @@ export default class ArticelListItem extends Vue{
     handleClickTag():number{
         return this.articel.TagID
     }
-
     get Title():string{
         return this.articel.Title;
     }
+    // 显示的内容
+    //去掉所有html标签
     get content():string{
-        return this.articel.Text;
+        //形如 <div></div> <img />的标签
+        let tagRegexp:RegExp=/<\/*?.+?\/*?>+?/gi;
+        let result= this.articel.Text.replace(tagRegexp,"");
+        return result;
+
     }
     get CommentCount():number{
         return this.articel.CommentCount;

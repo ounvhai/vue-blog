@@ -11,9 +11,7 @@
                 <loading v-show="isLoading"></loading>
             </transition>
             <h6 class="my-5" v-if="isAllLoaded">- - 木有啦 - - </h6>
-            
             <h6 class="my-5" v-show='isLoading'>--加载中--</h6>
-
         </div>
 </div>
 </template>
@@ -74,7 +72,7 @@ let handleWindowScrollThrottle=throttle(function(){
 export default class ArticelList extends Vue{
 
     @Prop({required:false}) tagID:number;
-    
+     
     //文章列表
     articels:VM[]=[];
     //第一页
@@ -85,6 +83,7 @@ export default class ArticelList extends Vue{
     isAllLoaded:boolean=false;
 
     created(){ 
+        scrollToTop(document.documentElement,0)
          this.handleLoadMore();
     }
     mounted(){

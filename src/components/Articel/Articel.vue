@@ -7,7 +7,7 @@
             min-height: 8rem;
             line-height: 1.8rem;
             z-index: 2;                //这里的作用 跟 .articel-cmt 一起，为了加载时不要让输入框遮住全文
-            .articel-text{
+            .articel-text >p{
                 // 字体缩进
                 text-indent: 2rem;
                 // 英文字折行
@@ -58,7 +58,6 @@
                 <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-suit-heart-fill " fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path :class="{'text-danger':isGratful}" d="M4 1c2.21 0 4 1.755 4 3.92C8 2.755 9.79 1 12 1s4 1.755 4 3.92c0 3.263-3.234 4.414-7.608 9.608a.513.513 0 0 1-.784 0C3.234 9.334 0 8.183 0 4.92 0 2.755 1.79 1 4 1z"/>
                 </svg>
-                
                 {{articel.GratfulCount}}
             </label>
             <label  class="mr-3">
@@ -170,21 +169,25 @@ export default class Articel extends Mixins(UserTrace){
     isWatchUserUpdated:boolean=false;
     // 请求显示的信息
     created(){
-        if(this.user.ID){
-            this.updateInfo()
-            this.isInited=true;
+        (async ()=>{if(this.user.ID){
             scrollToTop(document.documentElement,0);
-        }
+            this.isLoading=true;
+            await this.updateInfo()
+            this.isInited=true;
+            this.isLoading=false;
+            
+        }})();
     }
     //继承UserTrace的方法，第一次更新User后调用
     //请求显示的信息
     // 如果是第一次来会没cookie以请求显示的信息，在这里会有cookie
-    onUserInited(latestUser:User):void{
+    async onUserInited(latestUser:User):void{
         if(this.isInited===false){
             this.user=latestUser;//可能初始化的时候获得的latestuser是个空对象
-            this.user=latestUser;
-            this.updateInfo();
+            this.isLoading=true;
+            await this.updateInfo();
             this.isInited=true;
+            this.isLoading=false;
         }
     }
     //文章ID改变的时候请求新数据

@@ -5,6 +5,8 @@ import router from './router';
 import {getEventBus } from './utils/eventBus';
 // ajax
 import Axios from './utils/http';
+
+
 //更新用户信息
 import {updateUser } from './utils/userMgr/index';
 //时间

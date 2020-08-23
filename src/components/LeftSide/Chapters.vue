@@ -11,7 +11,7 @@
     @import '../../style/mixin/utils';
     
 
-    // --------------------------------------------------some chapter selected style               start--------------------------
+    // -------------------------------------------------- chapter selected style               start--------------------------
 
     //有多少个item就设置为几
     //写少显示不正常，写多了就多余
@@ -43,7 +43,6 @@
                 padding:{
                     top: $selected-padding-y/2;
                     bottom:$selected-padding-y/2;
-                    background: black;
                 }
                 //下划线本体
                 &::after{
@@ -55,7 +54,7 @@
     }
 
 
-    // --------------------------------------------------some chapter selected style            end--------------------------
+    // -------------------------------------------------- chapter selected style            end--------------------------
 
 
 
@@ -145,7 +144,7 @@ import {INTRODUCTION_ARTICRL_ID, INTRODUCTION_CONTENT_ID} from '../../router'
 export default class Chapter extends Vue{
     chapterItems:ChapterItem[]=[
         {
-            title:'个人介绍',
+            title:'简述',
             aheadTo:{name:'articel',query:{
                 articelID:INTRODUCTION_ARTICRL_ID,
                 contentID:INTRODUCTION_CONTENT_ID,
@@ -161,10 +160,6 @@ export default class Chapter extends Vue{
             title:'留言板',
             aheadTo:{name:'comments'},
         },
-        /* {
-            title:'测试',
-            aheadTo:{name:'test'}
-        } */
     ];
     //当前被选中的Chapter 的 Index
     //当前选中的chapter，会有一个active的类名
@@ -201,15 +196,6 @@ export default class Chapter extends Vue{
         dispatch('handleClickChapterItem',this);
             
     }
-    // 箭头的高度样式
-    //this.selectedIndex改变会触发箭头高度改变
-    get arrowPosition():any{
-        var piece:number=100/(this.chapterItems.length*2);
-        var topPieces:number=this.selectedIndex*2+1;
-        return {
-            top:topPieces*piece+'%',
-        }
-    }
-
+    
 }
 </script>
